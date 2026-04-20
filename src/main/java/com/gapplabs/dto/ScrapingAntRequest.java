@@ -83,8 +83,9 @@ public class ScrapingAntRequest {
          if (timeout != null) {
              params.put("timeout", timeout);
          }
-         // returnPageSource is validated as non-null in the builder, so include it always
-         params.put("return_page_source", returnPageSource);
+         if (returnPageSource){
+            params.put("return_page_source", returnPageSource);
+         }
          if (cookies != null) {
              params.put("cookies", cookies);
          }

@@ -42,7 +42,6 @@ class ScrapingAntRequestTest {
         assertEquals(false, queryMap.get("browser"));
         assertNull(queryMap.get("proxy_type"));
         assertEquals("us", queryMap.get("proxy_country"));
-        assertEquals(false, queryMap.get("return_page_source"));
     }
 
     @Test
