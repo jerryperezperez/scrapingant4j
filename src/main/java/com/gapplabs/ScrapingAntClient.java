@@ -34,6 +34,7 @@ public class ScrapingAntClient {
     public ScrapingAntClient(String apiKey) {
         // Configuración dinámica de Feign
         this.api = Feign.builder().logger(new Slf4jLogger(ScrapingAntClient.class)).requestInterceptor(new ScrapingAntAuthInterceptor(apiKey)) // Autenticación automática
+                .errorDecoder(new ScrapingAntErrorDecoder())
                 .target(ScrapingAntApi.class, MAIN_URL + "/" + API_VERSION);
         
         converterMap.put(ExtractionType.GENERAL, raw -> raw);
