@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 public class ScrapingAntRequest {
     
     // Requerido
-    @NotBlank
     private final String url;
     @NonNull
     private Boolean browser;
@@ -40,6 +39,10 @@ public class ScrapingAntRequest {
         @SuppressWarnings({"ConstantConditions"})
         public ScrapingAntRequest build() {
             // Explicit required-fields validation with clear messages (i18n-friendly: English)
+            
+            if (this.url == null || this.url.isEmpty()) {
+                throw new IllegalArgumentException("'url' is required and cannot be null nor empty");
+            }
             if (this.proxyType == null) {
                 throw new IllegalArgumentException("'proxyType' is required and cannot be null");
             }
