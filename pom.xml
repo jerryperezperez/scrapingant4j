@@ -13,7 +13,7 @@
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>7.0.7</org.springframework.version>
-        <org.projectlombok.version>1.18.38</org.projectlombok.version>
+        <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <junit.version>5.11.3</junit.version>
         <mockito.version>5.14.2</mockito.version>
     </properties>
