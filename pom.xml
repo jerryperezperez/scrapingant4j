@@ -12,8 +12,8 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>6.2.11</org.springframework.version>
-        <org.projectlombok.version>1.18.38</org.projectlombok.version>
+        <org.springframework.version>7.0.7</org.springframework.version>
+        <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <junit.version>5.11.3</junit.version>
         <mockito.version>5.14.2</mockito.version>
     </properties>
@@ -35,19 +35,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>3.4.0</version>
+            <version>4.0.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>4.2.0</version>
+            <version>5.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.11.0</version>
+            <version>2.13.2</version>
         </dependency>
 
         <!-- Source: https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.26.3</version>
+            <version>3.27.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
