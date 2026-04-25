@@ -1,10 +1,13 @@
-name: SonarCloud
+name: Build and SonarCloud
 
 on:
   push:
     branches:
       - main
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -19,8 +22,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: zulu
-          cache: maven   # 👈 esto ya cachea ~/.m2 correctamente
+          distribution: temurin
+          cache: maven
 
       - name: Cache SonarCloud
         uses: actions/cache@v4
@@ -29,14 +32,9 @@ jobs:
           key: ${{ runner.os }}-sonar
 
       - name: Build
-        run: mvn -B clean verify
-
-      - name: Debug JaCoCo
-        run: |
-          echo "Searching jacoco.xml..."
-          find . -name "jacoco.xml"
+        run: mvn -B -ntp clean verify
 
       - name: Sonar Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar
+        run: mvn -B -ntp sonar:sonar
