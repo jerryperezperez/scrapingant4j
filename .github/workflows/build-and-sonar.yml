@@ -1,4 +1,4 @@
-name: SonarCloud
+name: Build and SonarCloud
 
 on:
   push:
@@ -31,10 +31,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
 
-      - name: Build
-        run: mvn -B -ntp clean verify
-
-      - name: Sonar Analysis
+      - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -ntp sonar:sonar
+        run: mvn -B -ntp clean verify sonar:sonar -Dsonar.qualitygate.wait=true
