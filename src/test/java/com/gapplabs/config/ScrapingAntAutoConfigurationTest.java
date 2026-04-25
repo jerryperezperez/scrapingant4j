@@ -7,9 +7,7 @@ import feign.Feign;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,12 +58,11 @@ class ScrapingAntAutoConfigurationTest {
 
     @Test
     void testAutoConfigurationIsDiscoveredFromMetadata() {
-        try (ConfigurableApplicationContext context = new SpringApplicationBuilder(TestApplication.class)
-                .properties("scrapingant.api-key=test-api-key")
-                .run()) {
-            assertThat(context).hasSingleBean(ScrapingAntClient.class);
-            assertThat(context).hasSingleBean(ScrapingAntClientOptions.class);
-        }
+        contextRunner.withPropertyValues("scrapingant.api-key=test-api-key")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ScrapingAntClient.class);
+                    assertThat(context).hasSingleBean(ScrapingAntClientOptions.class);
+                });
     }
 
     @Test
