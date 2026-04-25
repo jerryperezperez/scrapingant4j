@@ -28,7 +28,15 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
 
-      - name: Build + Sonar Analysis
+      - name: Build
+        run: mvn -B clean verify
+
+      - name: Debug JaCoCo
+        run: |
+          echo "Searching jacoco.xml..."
+          find . -name "jacoco.xml"
+
+      - name: Sonar Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B clean verify sonar:sonar
+        run: mvn sonar:sonar
