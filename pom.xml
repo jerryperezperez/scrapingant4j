@@ -16,6 +16,9 @@
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <junit.version>5.11.3</junit.version>
         <mockito.version>5.14.2</mockito.version>
+        <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
+        <sonar.organization>gapp-labs</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>

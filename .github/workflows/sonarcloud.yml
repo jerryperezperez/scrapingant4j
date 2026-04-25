@@ -54,10 +54,7 @@ jobs:
 
       # STEP 1 & 2: Run tests and generate JaCoCo report
       - name: Build and Test with Maven
-        run: mvn clean verify
-          -Dsonar.projectKey=jerryperezperez_scrapingant4j \
-          -Dsonar.organization=gapp-labs \
-          -Dsonar.host.url=https://sonarcloud.io
+        run: mvn clean verify sonar:sonar
       - name: Analyze with SonarCloud
 
         # You can pin the exact commit or the version.
