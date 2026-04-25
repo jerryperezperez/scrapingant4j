@@ -1,6 +1,10 @@
 package com.gapplabs;
 
-import com.gapplabs.exceptions.*;
+import com.gapplabs.exceptions.ScrapingAntException;
+import com.gapplabs.exceptions.ScrapingAntForbiddenException;
+import com.gapplabs.exceptions.ScrapingAntNotFoundException;
+import com.gapplabs.exceptions.ScrapingAntRateLimitException;
+import com.gapplabs.exceptions.ScrapingAntServerException;
 import feign.Request;
 import feign.Response;
 import org.junit.jupiter.api.Test;
@@ -8,9 +12,12 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ScrapingAntErrorDecoderTest {
 
@@ -32,9 +39,8 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decode_403_throwsForbidden() {
-        String detail = "{\"detail\":\"Forbidden\"}";
-        Response resp = buildResponse(403, null, detail);
+    void decode403ThrowsForbidden() {
+        Response resp = buildResponse(403, null, "{\"detail\":\"Forbidden\"}");
 
         Exception ex = decoder.decode("m", resp);
         assertInstanceOf(ScrapingAntForbiddenException.class, ex);
@@ -42,9 +48,8 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decode_404_throwsNotFound() {
-        String detail = "{\"detail\":\"Not found\"}";
-        Response resp = buildResponse(404, null, detail);
+    void decode404ThrowsNotFound() {
+        Response resp = buildResponse(404, null, "{\"detail\":\"Not found\"}");
 
         Exception ex = decoder.decode("m", resp);
         assertInstanceOf(ScrapingAntNotFoundException.class, ex);
@@ -52,9 +57,19 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decode_500_throwsServer() {
-        String detail = "{\"detail\":\"Server error\"}";
-        Response resp = buildResponse(500, null, detail);
+    void decode429ThrowsRateLimitAndReadsRetryAfter() {
+        Response resp = buildResponse(429, Map.of("Retry-After", List.of("120")), "{\"detail\":\"Too many requests\"}");
+
+        Exception ex = decoder.decode("m", resp);
+        assertInstanceOf(ScrapingAntRateLimitException.class, ex);
+        ScrapingAntRateLimitException rateLimitException = (ScrapingAntRateLimitException) ex;
+        assertEquals(429, rateLimitException.getStatusCode());
+        assertEquals(120, rateLimitException.getRetryAfter());
+    }
+
+    @Test
+    void decode500ThrowsServer() {
+        Response resp = buildResponse(500, null, "{\"detail\":\"Server error\"}");
 
         Exception ex = decoder.decode("m", resp);
         assertInstanceOf(ScrapingAntServerException.class, ex);
@@ -62,9 +77,8 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decode_422_throwsBase() {
-        String detail = "{\"detail\":\"Unprocessable\"}";
-        Response resp = buildResponse(422, null, detail);
+    void decode422ThrowsBase() {
+        Response resp = buildResponse(422, null, "{\"detail\":\"Unprocessable\"}");
 
         Exception ex = decoder.decode("m", resp);
         assertInstanceOf(ScrapingAntException.class, ex);
@@ -72,9 +86,8 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decode_malformedBody_usesFallbackMessage_noNpe() {
-        String bad = "{ not json";
-        Response resp = buildResponse(400, null, bad);
+    void decodeMalformedBodyUsesFallbackMessageNoNpe() {
+        Response resp = buildResponse(400, null, "{ not json");
 
         Exception ex = decoder.decode("m", resp);
         assertInstanceOf(ScrapingAntException.class, ex);
