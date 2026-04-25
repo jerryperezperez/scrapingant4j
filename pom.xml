@@ -7,9 +7,28 @@
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>scrapingant4j</name>
+    <description>Lightweight Java client for the ScrapingAnt API.</description>
+    <url>https://github.com/jerryperezperez/scrapingant4j</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License v3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/jerryperezperez/scrapingant4j.git</connection>
+        <developerConnection>scm:git:https://github.com/jerryperezperez/scrapingant4j.git</developerConnection>
+        <url>https://github.com/jerryperezperez/scrapingant4j</url>
+    </scm>
 
     <properties>
         <java.version>21</java.version>
+        <maven.min.version>3.9.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>3.4.0</spring.boot.version>
         <spring.cloud.version>2024.0.0</spring.cloud.version>
@@ -57,7 +76,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
         <dependency>
@@ -92,6 +111,29 @@
                 <configuration>
                     <release>${java.version}</release>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-build-prerequisites</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[${java.version},)</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>[${maven.min.version},)</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
