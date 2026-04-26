@@ -5,6 +5,8 @@ import com.gapplabs.dto.ExtractRequestOptions;
 import com.gapplabs.dto.ScrapingAntRequest;
 import com.gapplabs.dto.responses.ExtendedResponse;
 import com.gapplabs.dto.responses.MarkdownResponse;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import feign.Feign;
 import feign.slf4j.Slf4jLogger;
@@ -12,31 +14,31 @@ import feign.slf4j.Slf4jLogger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
-
 /**
- * Cliente para la API de ScrapingAnt.
- * Permite la configuración y uso de la llave de API necesaria para las operaciones de scraping.
+ * Thin SDK client for ScrapingAnt.
  */
 public class ScrapingAntClient {
-    
+
     private final ScrapingAntApi api;
-    
-    private final String MAIN_URL = "https://api.scrapingant.com";
-    private final String API_VERSION = "v2";
+    private final ScrapingAntClientOptions options;
     private final Map<ExtractionType, Function<String, Object>> converterMap = new HashMap<>();
-    private final Gson gson = new Gson();
-    
+
     public ScrapingAntClient(String apiKey) {
-        // Configuración dinámica de Feign
-        this.api = Feign.builder().logger(new Slf4jLogger(ScrapingAntClient.class)).requestInterceptor(new ScrapingAntAuthInterceptor(apiKey)) // Autenticación automática
-                .errorDecoder(new ScrapingAntErrorDecoder())
-                .target(ScrapingAntApi.class, MAIN_URL + "/" + API_VERSION);
-        
+        this(ScrapingAntClientOptions.builder().apiKey(apiKey).build());
+    }
+
+    public ScrapingAntClient(ScrapingAntClientOptions options) {
+        this(options, buildApi(options));
+    }
+
+    ScrapingAntClient(ScrapingAntClientOptions options, ScrapingAntApi api) {
+        this.options = Objects.requireNonNull(options, "options");
+        this.api = Objects.requireNonNull(api, "api");
+
+        Gson gson = options.getGson();
         converterMap.put(ExtractionType.GENERAL, raw -> raw);
         converterMap.put(ExtractionType.MARKDOWN, raw -> gson.fromJson(raw, MarkdownResponse.class));
         converterMap.put(ExtractionType.AI_EXTRACTED, raw -> gson.fromJson(raw, new TypeToken<Map<String, Object>>() {
@@ -80,7 +82,11 @@ public class ScrapingAntClient {
     public Map<String, Object> executeExtract(ScrapingAntRequest request, List<String> extractProperties) {
         return executeExtract(request, ExtractRequestOptions.fromList(extractProperties));
     }
-    
+
+    public ScrapingAntClientOptions getOptions() {
+        return options;
+    }
+
     private Object convertResponse(String response, ExtractionType extractionType) {
         Function<String, Object> converter = converterMap.get(extractionType);
         if (converter == null) {
@@ -91,5 +97,13 @@ public class ScrapingAntClient {
         } catch (JsonSyntaxException e) {
             throw new RuntimeException("Failed to deserialize response for: " + extractionType, e);
         }
+    }
+
+    private static ScrapingAntApi buildApi(ScrapingAntClientOptions options) {
+        Feign.Builder builder = options.getFeignBuilder()
+                .logger(new Slf4jLogger(ScrapingAntClient.class))
+                .requestInterceptor(new ScrapingAntAuthInterceptor(options.getApiKey()))
+                .errorDecoder(new ScrapingAntErrorDecoder());
+        return builder.target(ScrapingAntApi.class, options.getBaseUrl());
     }
 }

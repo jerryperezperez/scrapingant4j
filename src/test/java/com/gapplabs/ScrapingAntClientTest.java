@@ -1,7 +1,5 @@
 package com.gapplabs;
 
-import com.gapplabs.constants.ProxyCountry;
-import com.gapplabs.constants.ProxyType;
 import com.gapplabs.dto.ExtractRequestOptions;
 import com.gapplabs.dto.ScrapingAntRequest;
 import com.gapplabs.dto.responses.ExtendedResponse;
@@ -12,11 +10,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -30,14 +28,12 @@ class ScrapingAntClientTest {
     private ScrapingAntApi mockApi;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        client = new ScrapingAntClient("test-api-key");
-        
-        // Use reflection to inject mockApi into the private field
-        Field apiField = ScrapingAntClient.class.getDeclaredField("api");
-        apiField.setAccessible(true);
-        apiField.set(client, mockApi);
+        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
+                .apiKey("test-api-key")
+                .build();
+        client = new ScrapingAntClient(options, mockApi);
     }
 
     @Test
@@ -128,13 +124,23 @@ class ScrapingAntClientTest {
         assertEquals("title, price", queryCaptor.getValue().get("extract_properties"));
     }
 
+    @Test
+    void testClientRetainsConfiguredOptions() {
+        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
+                .apiKey("test-api-key")
+                .endpoint("https://custom.scrapingant.com/")
+                .apiVersion("/v3")
+                .build();
+
+        ScrapingAntClient configuredClient = new ScrapingAntClient(options, mockApi);
+
+        assertSame(options, configuredClient.getOptions());
+        assertEquals("https://custom.scrapingant.com/v3", configuredClient.getOptions().getBaseUrl());
+    }
+
     private ScrapingAntRequest createBasicRequest() {
         return ScrapingAntRequest.builder()
                 .url("https://example.com")
-                .browser(false)
-                .proxyType(ProxyType.STANDARD)
-                .proxyCountry(ProxyCountry.ALL_COUNTRIES)
-                .returnPageSource(false)
                 .build();
     }
 }
