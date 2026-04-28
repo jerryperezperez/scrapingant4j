@@ -52,11 +52,25 @@
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
         <sonar.organization>gapp-labs</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- CHANGE 1: point to the single aggregated report -->
         <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/scrapingant4j-core/target/site/jacoco/jacoco.xml,
-            ${project.basedir}/scrapingant4j-spring-boot-starter/target/site/jacoco/jacoco.xml
+            ${project.basedir}/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
+
+    <!-- CHANGE 2: declare child modules as dependencies so report-aggregate can find them -->
+    <dependencies>
+        <dependency>
+            <groupId>com.gapplabs</groupId>
+            <artifactId>scrapingant4j-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gapplabs</groupId>
+            <artifactId>scrapingant4j-spring-boot-starter</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -146,22 +160,28 @@
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${sonar.maven.plugin.version}</version>
                 </plugin>
+                <!-- CHANGE 3: add report-aggregate execution -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.maven.plugin.version}</version>
                     <executions>
                         <execution>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
+                            <id>prepare-agent</id>
+                            <goals><goal>prepare-agent</goal></goals>
                         </execution>
                         <execution>
                             <id>report</id>
                             <phase>test</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
+                            <goals><goal>report</goal></goals>
+                        </execution>
+                        <execution>
+                            <id>report-aggregate</id>
+                            <phase>verify</phase>
+                            <goals><goal>report-aggregate</goal></goals>
+                            <configuration>
+                                <outputDirectory>${project.basedir}/target/site/jacoco-aggregate</outputDirectory>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -204,6 +224,11 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
+            </plugin>
+            <!-- CHANGE 4: activate JaCoCo so it actually runs -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
