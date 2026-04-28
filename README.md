@@ -1,6 +1,11 @@
 # scrapingant4j
 
-`scrapingant4j` is a lightweight Java SDK for the ScrapingAnt API with support for both plain Java and Spring Boot applications.
+`scrapingant4j` is now a multi-module Maven project with separate runtime and Spring Boot artifacts.
+
+Modules:
+
+- `com.gapplabs:scrapingant4j-core`
+- `com.gapplabs:scrapingant4j-spring-boot-starter`
 
 Supported ScrapingAnt endpoints:
 
@@ -9,7 +14,21 @@ Supported ScrapingAnt endpoints:
 - `markdown`
 - `extract`
 
+## Migration
+
+- Plain Java consumers should depend on `scrapingant4j-core`
+- Spring Boot consumers should depend on `scrapingant4j-spring-boot-starter`
+- The repository root is now a parent/aggregator POM and no longer produces a runtime JAR
+
 ## Plain Java
+
+```xml
+<dependency>
+    <groupId>com.gapplabs</groupId>
+    <artifactId>scrapingant4j-core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
 
 ```java
 import com.gapplabs.ScrapingAntClient;
@@ -29,34 +48,21 @@ ScrapingAntRequest request = ScrapingAntRequest.builder()
 String html = client.executeGeneral(request);
 ```
 
-You can also override the API host or version:
-
-```java
-ScrapingAntClient client = new ScrapingAntClient(
-        ScrapingAntClientOptions.builder()
-                .apiKey("your-api-key")
-                .endpoint("https://api.scrapingant.com")
-                .apiVersion("v2")
-                .build()
-);
-```
-
 ## Spring Boot
 
-Add your API key:
+```xml
+<dependency>
+    <groupId>com.gapplabs</groupId>
+    <artifactId>scrapingant4j-spring-boot-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
 
 ```properties
 scrapingant.api-key=your-api-key
-```
-
-Optional overrides:
-
-```properties
 scrapingant.endpoint=https://api.scrapingant.com
 scrapingant.api-version=v2
 ```
-
-Then inject the client:
 
 ```java
 import com.gapplabs.ScrapingAntClient;
@@ -75,7 +81,7 @@ public class ScrapingService {
 
 ## Request behavior
 
-- Only explicitly supplied request options are serialized.
-- If you omit optional fields, ScrapingAnt API defaults are preserved.
-- Browser-only options are rejected when `browser=false`.
-- `timeout` must be between `5` and `60` seconds when provided.
+- Only explicitly supplied request options are serialized
+- If optional fields are omitted, ScrapingAnt API defaults are preserved
+- Browser-only options are rejected when `browser=false`
+- `timeout` must be between `5` and `60` seconds when provided
