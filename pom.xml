@@ -31,7 +31,7 @@
         <maven.min.version>3.9.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>3.4.0</spring.boot.version>
-        <spring.cloud.version>2024.0.0</spring.cloud.version>
+        <spring.cloud.version>2025.1.1</spring.cloud.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <gson.version>2.14.0</gson.version>
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
