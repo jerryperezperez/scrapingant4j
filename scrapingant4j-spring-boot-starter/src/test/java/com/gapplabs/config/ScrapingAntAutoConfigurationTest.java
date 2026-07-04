@@ -66,6 +66,15 @@ class ScrapingAntAutoConfigurationTest {
     }
 
     @Test
+    void testAutoConfigurationDoesNotCreateBeansWithoutApiKey() {
+        contextRunner.run(context -> {
+            assertThat(context).hasSingleBean(ScrapingAntProperties.class);
+            assertThat(context).doesNotHaveBean(ScrapingAntClient.class);
+            assertThat(context).doesNotHaveBean(ScrapingAntClientOptions.class);
+        });
+    }
+
+    @Test
     void testClientBeanBacksOffWhenUserProvidesCustomBean() {
         new ApplicationContextRunner()
                 .withUserConfiguration(CustomClientApplication.class)
