@@ -4,17 +4,23 @@ import com.gapplabs.dto.ExtractRequestOptions;
 import com.gapplabs.dto.ScrapingAntRequest;
 import com.gapplabs.dto.responses.ExtendedResponse;
 import com.gapplabs.dto.responses.MarkdownResponse;
+import com.google.gson.JsonSyntaxException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -83,6 +89,16 @@ class ScrapingAntClientTest {
     }
 
     @Test
+    void testExecuteMarkdownRejectsMalformedJson() {
+        ScrapingAntRequest request = createBasicRequest();
+        when(mockApi.scrape(any(), eq("markdown"))).thenReturn("not json");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> client.executeMarkdown(request));
+
+        assertInstanceOf(JsonSyntaxException.class, exception.getCause());
+    }
+
+    @Test
     void testExecuteExtractWithOptionsAddsExtractProperties() {
         ScrapingAntRequest request = createBasicRequest();
         ExtractRequestOptions options = ExtractRequestOptions.fromString("title, price");
@@ -96,6 +112,46 @@ class ScrapingAntClientTest {
         Map<String, Object> queryMap = queryCaptor.getValue();
         assertEquals("https://example.com", queryMap.get("url"));
         assertEquals("title, price", queryMap.get("extract_properties"));
+    }
+
+    @Test
+    void testPublicStringConstructorBuildsClientOptions() {
+        ScrapingAntClient configuredClient = new ScrapingAntClient("test-api-key");
+
+        assertEquals("test-api-key", configuredClient.getOptions().getApiKey());
+        assertEquals(ScrapingAntClientOptions.DEFAULT_ENDPOINT, configuredClient.getOptions().getEndpoint());
+        assertNotNull(configuredClient.getOptions().getFeignBuilder());
+    }
+
+    @Test
+    void testPublicOptionsConstructorBuildsFeignTarget() {
+        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
+                .apiKey("test-api-key")
+                .endpoint("https://custom.scrapingant.com/")
+                .apiVersion("/v3")
+                .build();
+
+        ScrapingAntClient configuredClient = new ScrapingAntClient(options);
+
+        assertSame(options, configuredClient.getOptions());
+        assertEquals("https://custom.scrapingant.com/v3", configuredClient.getOptions().getBaseUrl());
+    }
+
+    @Test
+    void testConvertResponseRejectsUnknownExtractionType() throws Exception {
+        Method convertResponse = ScrapingAntClient.class.getDeclaredMethod(
+                "convertResponse",
+                String.class,
+                com.gapplabs.constants.ExtractionType.class
+        );
+        convertResponse.setAccessible(true);
+
+        InvocationTargetException exception = assertThrows(
+                InvocationTargetException.class,
+                () -> convertResponse.invoke(client, "{}", (Object) null)
+        );
+
+        assertInstanceOf(IllegalArgumentException.class, exception.getCause());
     }
 
     @Test

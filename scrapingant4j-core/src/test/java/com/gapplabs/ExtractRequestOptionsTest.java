@@ -39,6 +39,14 @@ class ExtractRequestOptionsTest {
     }
 
     @Test
+    void testBuilderRejectsNullValue() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                ExtractRequestOptions.builder().extractProperties(null).build()
+        );
+        assertEquals("'extractProperties' is required and cannot be blank", ex.getMessage());
+    }
+
+    @Test
     void testBuilderRejectsBlankValue() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 ExtractRequestOptions.builder().extractProperties("   ").build()
@@ -52,6 +60,14 @@ class ExtractRequestOptionsTest {
                 ExtractRequestOptions.fromString("title, ,price")
         );
         assertEquals("'extractProperties' contains an empty token", ex.getMessage());
+    }
+
+    @Test
+    void testFromListRejectsNullList() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                ExtractRequestOptions.fromList(null)
+        );
+        assertEquals("'extractProperties' list is required and cannot be null or empty", ex.getMessage());
     }
 
     @Test

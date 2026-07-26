@@ -8,12 +8,14 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -39,5 +41,8 @@ jobs:
 
       - name: Sonar Analysis
         if: env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
-        run: mvn -B -ntp sonar:sonar -Dsonar.qualitygate.wait=true
+        run: >
+          mvn -B -ntp verify sonar:sonar
+          -Dsonar.token="${SONAR_TOKEN}"
+          -Dsonar.qualitygate.wait=true
 

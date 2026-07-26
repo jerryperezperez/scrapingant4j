@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.gapplabs</groupId>
+        <artifactId>scrapingant4j</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>scrapingant4j-core</artifactId>
+    <packaging>jar</packaging>
+    <name>scrapingant4j-core</name>
+    <description>Pure Java core SDK for the ScrapingAnt API.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>ban-spring-dependencies-in-core</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>org.springframework:*:*:*:compile</exclude>
+                                        <exclude>org.springframework:*:*:*:runtime</exclude>
+                                        <exclude>org.springframework:*:*:*:provided</exclude>
+                                        <exclude>org.springframework:*:*:*:system</exclude>
+                                        <exclude>org.springframework.boot:*:*:*:compile</exclude>
+                                        <exclude>org.springframework.boot:*:*:*:runtime</exclude>
+                                        <exclude>org.springframework.boot:*:*:*:provided</exclude>
+                                        <exclude>org.springframework.boot:*:*:*:system</exclude>
+                                        <exclude>org.springframework.cloud:*:*:*:compile</exclude>
+                                        <exclude>org.springframework.cloud:*:*:*:runtime</exclude>
+                                        <exclude>org.springframework.cloud:*:*:*:provided</exclude>
+                                        <exclude>org.springframework.cloud:*:*:*:system</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
