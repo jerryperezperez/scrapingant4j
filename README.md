@@ -26,7 +26,7 @@ Supported ScrapingAnt endpoints:
 <dependency>
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j-core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -54,7 +54,7 @@ String html = client.executeGeneral(request);
 <dependency>
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j-spring-boot-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
