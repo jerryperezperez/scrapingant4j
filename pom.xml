@@ -47,7 +47,7 @@
         <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
         <sonar.maven.plugin.version>5.6.0.6792</sonar.maven.plugin.version>
         <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
-        <spotless.maven.plugin.version>2.43.0</spotless.maven.plugin.version>
+        <spotless.maven.plugin.version>3.8.0</spotless.maven.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
         <sonar.organization>gapp-labs</sonar.organization>
