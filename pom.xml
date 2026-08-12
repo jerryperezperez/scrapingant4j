@@ -40,7 +40,7 @@
         <spring.cloud.version>2024.0.0</spring.cloud.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <gson.version>2.14.0</gson.version>
-        <feign.version>13.6</feign.version>
+        <feign.version>13.13</feign.version>
         <jakarta.validation.version>3.1.1</jakarta.validation.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
