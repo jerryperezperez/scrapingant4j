@@ -2,7 +2,6 @@ package com.gapplabs.config;
 
 import com.gapplabs.ScrapingAntClient;
 import com.gapplabs.ScrapingAntClientOptions;
-import com.google.gson.Gson;
 import feign.Feign;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
@@ -30,29 +29,23 @@ class ScrapingAntAutoConfigurationTest {
     @Test
     void testConfigurationPropertiesAreLoaded() {
         contextRunner.withPropertyValues(
-                "scrapingant.api-key=custom-key",
-                "scrapingant.endpoint=https://internal.example.com/",
-                "scrapingant.api-version=/v9"
+                "scrapingant.api-key=custom-key"
         ).run(context -> {
             ScrapingAntProperties properties = context.getBean(ScrapingAntProperties.class);
             ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
             assertThat(properties.getApiKey()).isEqualTo("custom-key");
-            assertThat(properties.getEndpoint()).isEqualTo("https://internal.example.com/");
-            assertThat(properties.getApiVersion()).isEqualTo("/v9");
-            assertThat(options.getBaseUrl()).isEqualTo("https://internal.example.com/v9");
+            assertThat(options.getBaseUrl()).isEqualTo(ScrapingAntClientOptions.BASE_URL);
         });
     }
 
     @Test
-    void testCustomRuntimeComponentsAreAppliedToClientOptions() {
+    void testFeignBuilderBeanIsNotAutoInjected() {
         contextRunner
                 .withPropertyValues("scrapingant.api-key=custom-key")
-                .withBean(Gson.class, Gson::new)
                 .withBean(Feign.Builder.class, Feign::builder)
                 .run(context -> {
                     ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
-                    assertThat(options.getGson()).isSameAs(context.getBean(Gson.class));
-                    assertThat(options.getFeignBuilder()).isSameAs(context.getBean(Feign.Builder.class));
+                    assertThat(options.getFeignCustomizer()).isNull();
                 });
     }
 

@@ -9,16 +9,11 @@ import lombok.Getter;
 @Getter
 public class ScrapingAntException extends RuntimeException {
     private final int statusCode;
-    /**
-     * -- GETTER --
-     *  The API provided message (parsed from the response body `detail` field when available).
-     */
-    private final String detailMessage;
+
 
     public ScrapingAntException(int statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
-        this.detailMessage = message;
     }
     
 }
