@@ -49,6 +49,7 @@
         <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
         <spotless.maven.plugin.version>2.43.0</spotless.maven.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
+        <httpcore5.version>5.4.3</httpcore5.version>
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
         <sonar.organization>gapp-labs</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -98,6 +99,13 @@
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${jakarta.validation.version}</version>
+            </dependency>
+
+            <!-- Source: https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -153,12 +161,16 @@
                     <executions>
                         <execution>
                             <id>prepare-agent</id>
-                            <goals><goal>prepare-agent</goal></goals>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
                         </execution>
                         <execution>
                             <id>report</id>
                             <phase>test</phase>
-                            <goals><goal>report</goal></goals>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>

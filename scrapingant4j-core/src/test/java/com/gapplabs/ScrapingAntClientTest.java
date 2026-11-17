@@ -119,7 +119,7 @@ class ScrapingAntClientTest {
         ScrapingAntClient configuredClient = new ScrapingAntClient("test-api-key");
 
         assertEquals("test-api-key", configuredClient.getOptions().getApiKey());
-        assertEquals(ScrapingAntClientOptions.DEFAULT_ENDPOINT, configuredClient.getOptions().getEndpoint());
+        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
         assertNotNull(configuredClient.getOptions().getFeignBuilder());
     }
 
@@ -127,14 +127,12 @@ class ScrapingAntClientTest {
     void testPublicOptionsConstructorBuildsFeignTarget() {
         ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
                 .apiKey("test-api-key")
-                .endpoint("https://custom.scrapingant.com/")
-                .apiVersion("/v3")
                 .build();
 
         ScrapingAntClient configuredClient = new ScrapingAntClient(options);
 
         assertSame(options, configuredClient.getOptions());
-        assertEquals("https://custom.scrapingant.com/v3", configuredClient.getOptions().getBaseUrl());
+        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
     }
 
     @Test
@@ -184,14 +182,12 @@ class ScrapingAntClientTest {
     void testClientRetainsConfiguredOptions() {
         ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
                 .apiKey("test-api-key")
-                .endpoint("https://custom.scrapingant.com/")
-                .apiVersion("/v3")
                 .build();
 
         ScrapingAntClient configuredClient = new ScrapingAntClient(options, mockApi);
 
         assertSame(options, configuredClient.getOptions());
-        assertEquals("https://custom.scrapingant.com/v3", configuredClient.getOptions().getBaseUrl());
+        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
     }
 
     private ScrapingAntRequest createBasicRequest() {

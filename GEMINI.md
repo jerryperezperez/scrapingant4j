@@ -15,18 +15,18 @@ This project uses Maven for dependency management and building.
     ```bash
     mvn clean install
     ```
-*   **Run tests for all modules**:
-    ```bash
-    mvn verify
-    ```
+  *   **Run tests for all modules**:
+      ```bash!!!
+      mvn verify
+      ```
 *   **Run SonarCloud analysis (requires `SONAR_TOKEN` and `GITHUB_TOKEN` environment variables)**:
-    ```bash
+    ```bash add Select 
     mvn sonar:sonar
     ```
 
 # Development Conventions
 
-*   **Build Tool**: Apache Maven
+*   **Build Tool**: Apache Maven!
 *   **Language**: Java 21
 *   **Code Quality**: SonarCloud for static analysis.
 *   **Code Coverage**: JaCoCo for reporting code coverage, integrated with SonarCloud.
@@ -35,3 +35,4 @@ This project uses Maven for dependency management and building.
 *   **API Client**: Feign for declarative REST client.
 *   **JSON Processing**: Google Gson library.
 *   **Dependency Management**: Bill of Materials (BOM) for Spring Boot and Spring Cloud dependencies.
+            

@@ -38,7 +38,7 @@ public class ScrapingAntClient {
         this.options = Objects.requireNonNull(options, "options");
         this.api = Objects.requireNonNull(api, "api");
 
-        Gson gson = options.getGson();
+        Gson gson = new Gson();
         converterMap.put(ExtractionType.GENERAL, raw -> raw);
         converterMap.put(ExtractionType.MARKDOWN, raw -> gson.fromJson(raw, MarkdownResponse.class));
         converterMap.put(ExtractionType.AI_EXTRACTED, raw -> gson.fromJson(raw, new TypeToken<Map<String, Object>>() {
