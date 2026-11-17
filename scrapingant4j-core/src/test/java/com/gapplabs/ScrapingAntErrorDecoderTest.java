@@ -63,42 +63,20 @@ class ScrapingAntErrorDecoderTest {
         assertEquals("Bad request detail", ex.getMessage());
     }
 
-    @Test
-    void decodeUnknownStatusReturnsBaseException() {
-        Response resp = buildResponse(418, null, null);
+    @ParameterizedTest
+    @MethodSource("fallbackMessageCases")
+    void decodeWithoutUsableDetailUsesFallbackMessage(
+            int status,
+            String body,
+            String expectedMessage
+    ) {
+        Response resp = buildResponse(status, null, body);
 
         Exception ex = decoder.decode("m", resp);
 
         assertInstanceOf(ScrapingAntException.class, ex);
-        assertEquals(418, ((ScrapingAntException) ex).getStatusCode());
-        assertEquals("HTTP 418", ex.getMessage());
-    }
-
-    @Test
-    void decodeUnknownStatusWithEmptyDetailReturnsFallbackMessage() {
-        Response resp = buildResponse(418, null, "{\"detail\":\"\"}");
-
-        Exception ex = decoder.decode("m", resp);
-
-        assertEquals("HTTP 418", ex.getMessage());
-    }
-
-    @Test
-    void decodeUnknownStatusWithNullDetailFieldReturnsFallbackMessage() {
-        Response resp = buildResponse(418, null, "{\"detail\":null}");
-
-        Exception ex = decoder.decode("m", resp);
-
-        assertEquals("HTTP 418", ex.getMessage());
-    }
-
-    @Test
-    void decodeUnknownStatusWithUnrelatedJsonReturnsFallbackMessage() {
-        Response resp = buildResponse(418, null, "{\"foo\":\"bar\"}");
-
-        Exception ex = decoder.decode("m", resp);
-
-        assertEquals("HTTP 418", ex.getMessage());
+        assertEquals(status, ((ScrapingAntException) ex).getStatusCode());
+        assertEquals(expectedMessage, ex.getMessage());
     }
 
     @Test
@@ -126,19 +104,20 @@ class ScrapingAntErrorDecoderTest {
     }
 
     @Test
-    void decodeMalformedBodyUsesFallbackMessageNoNpe() {
-        Response resp = buildResponse(400, null, "{ not json");
-        Exception ex = decoder.decode("m", resp);
-        assertInstanceOf(ScrapingAntException.class, ex);
-        assertEquals(400, ((ScrapingAntException) ex).getStatusCode());
-        assertEquals("HTTP 400", ex.getMessage());
-    }
-
-    @Test
     void decodeUnknownStatusWithDetailReturnsDetail() {
         Response resp = buildResponse(418, null, "{\"detail\":\"I am a teapot\"}");
         Exception ex = decoder.decode("m", resp);
         assertEquals("I am a teapot", ex.getMessage());
+    }
+
+    private static Stream<Arguments> fallbackMessageCases() {
+        return Stream.of(
+                Arguments.of(418, null, "HTTP 418"),
+                Arguments.of(418, "{\"detail\":\"\"}", "HTTP 418"),
+                Arguments.of(418, "{\"detail\":null}", "HTTP 418"),
+                Arguments.of(418, "{\"foo\":\"bar\"}", "HTTP 418"),
+                Arguments.of(400, "{ not json", "HTTP 400")
+        );
     }
 
     private static Stream<Arguments> errorStatusProvider() {
