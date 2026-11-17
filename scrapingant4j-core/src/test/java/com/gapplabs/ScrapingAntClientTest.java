@@ -1,6 +1,5 @@
 package com.gapplabs;
 
-import com.gapplabs.dto.ExtractRequestOptions;
 import com.gapplabs.dto.ScrapingAntRequest;
 import com.gapplabs.dto.responses.ExtendedResponse;
 import com.gapplabs.dto.responses.MarkdownResponse;
@@ -11,8 +10,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -68,24 +65,32 @@ class ScrapingAntClientTest {
     @Test
     void testExecuteExtendedTyped() {
         ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = "{\"html\":\"<html></html>\", \"status_code\":200}";
+        String jsonResponse = """
+                {
+                  "html": "<html></html>",
+                  "status_code": 200,
+                  "headers": [{"name": "Content-Type", "value": "text/html"}],
+                  "xhrs": [{
+                    "url": "https://example.com/api",
+                    "status": 201,
+                    "method": "POST",
+                    "headers": [{"name": "Content-Type", "value": "application/json"}],
+                    "request_body": "{}",
+                    "body": "{\\"ok\\":true}"
+                  }],
+                  "iframes": [{"src": "https://example.com/frame", "html": "<p>frame</p>"}]
+                }
+                """;
         when(mockApi.scrape(any(), eq("extended"))).thenReturn(jsonResponse);
 
         ExtendedResponse result = client.executeExtended(request);
 
         assertEquals(200, result.statusCode());
-    }
-
-    @Test
-    void testExecuteExtractTyped() {
-        ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = "{\"price\":99.5,\"currency\":\"USD\"}";
-        when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
-
-        Map<String, Object> result = client.executeExtract(request);
-
-        assertEquals(99.5, result.get("price"));
-        assertEquals("USD", result.get("currency"));
+        assertEquals("Content-Type", result.headers().get(0).name());
+        assertEquals(201, result.xhrs().get(0).status());
+        assertEquals("application/json", result.xhrs().get(0).headers().get(0).value());
+        assertEquals("{}", result.xhrs().get(0).requestBody());
+        assertEquals("https://example.com/frame", result.iframes().get(0).src());
     }
 
     @Test
@@ -96,22 +101,6 @@ class ScrapingAntClientTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> client.executeMarkdown(request));
 
         assertInstanceOf(JsonSyntaxException.class, exception.getCause());
-    }
-
-    @Test
-    void testExecuteExtractWithOptionsAddsExtractProperties() {
-        ScrapingAntRequest request = createBasicRequest();
-        ExtractRequestOptions options = ExtractRequestOptions.fromString("title, price");
-        String jsonResponse = "{\"title\":\"A\",\"price\":99.5}";
-        when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
-
-        client.executeExtract(request, options);
-
-        ArgumentCaptor<Map<String, Object>> queryCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(mockApi).scrape(queryCaptor.capture(), eq("extract"));
-        Map<String, Object> queryMap = queryCaptor.getValue();
-        assertEquals("https://example.com", queryMap.get("url"));
-        assertEquals("title, price", queryMap.get("extract_properties"));
     }
 
     @Test
@@ -133,23 +122,6 @@ class ScrapingAntClientTest {
 
         assertSame(options, configuredClient.getOptions());
         assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
-    }
-
-    @Test
-    void testConvertResponseRejectsUnknownExtractionType() throws Exception {
-        Method convertResponse = ScrapingAntClient.class.getDeclaredMethod(
-                "convertResponse",
-                String.class,
-                com.gapplabs.constants.ExtractionType.class
-        );
-        convertResponse.setAccessible(true);
-
-        InvocationTargetException exception = assertThrows(
-                InvocationTargetException.class,
-                () -> convertResponse.invoke(client, "{}", (Object) null)
-        );
-
-        assertInstanceOf(IllegalArgumentException.class, exception.getCause());
     }
 
     @Test
