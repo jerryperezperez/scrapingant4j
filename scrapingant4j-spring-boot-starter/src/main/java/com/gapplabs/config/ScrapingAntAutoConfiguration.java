@@ -2,7 +2,6 @@ package com.gapplabs.config;
 
 import com.gapplabs.ScrapingAntClient;
 import com.gapplabs.ScrapingAntClientOptions;
-import com.google.gson.Gson;
 import feign.Feign;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -20,22 +19,14 @@ public class ScrapingAntAutoConfiguration {
     @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
     public ScrapingAntClientOptions scrapingAntClientOptions(
             ScrapingAntProperties properties,
-            ObjectProvider<Feign.Builder> feignBuilderProvider,
-            ObjectProvider<Gson> gsonProvider
+            ObjectProvider<Feign.Builder> feignBuilderProvider
     ) {
-        ScrapingAntClientOptions.Builder builder = ScrapingAntClientOptions.builder()
-                .apiKey(properties.getApiKey())
-                .endpoint(properties.getEndpoint())
-                .apiVersion(properties.getApiVersion());
+        ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder builder = ScrapingAntClientOptions.builder()
+                .apiKey(properties.getApiKey());
 
         Feign.Builder feignBuilder = feignBuilderProvider.getIfAvailable();
         if (feignBuilder != null) {
             builder.feignBuilder(feignBuilder);
-        }
-
-        Gson gson = gsonProvider.getIfAvailable();
-        if (gson != null) {
-            builder.gson(gson);
         }
 
         return builder.build();

@@ -16,13 +16,4 @@ public class ScrapingAntProperties {
      */
     private String apiKey;
 
-    /**
-     * Base endpoint for the ScrapingAnt API.
-     */
-    private String endpoint = "https://api.scrapingant.com";
-
-    /**
-     * API version used by the client.
-     */
-    private String apiVersion = "v2";
 }

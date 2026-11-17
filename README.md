@@ -60,8 +60,6 @@ String html = client.executeGeneral(request);
 
 ```properties
 scrapingant.api-key=your-api-key
-scrapingant.endpoint=https://api.scrapingant.com
-scrapingant.api-version=v2
 ```
 
 ```java
