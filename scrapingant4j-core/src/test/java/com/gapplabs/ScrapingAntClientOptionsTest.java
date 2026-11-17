@@ -23,7 +23,7 @@ class ScrapingAntClientOptionsTest {
     void builderRejectsMissingApiKeyAtBuild() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> ScrapingAntClientOptions.builder().build()
+                ScrapingAntClientOptions.builder()::build
         );
 
         assertEquals("apiKey is required and cannot be blank", exception.getMessage());
@@ -31,9 +31,11 @@ class ScrapingAntClientOptionsTest {
 
     @Test
     void builderRejectsNullApiKeyAtBuild() {
+        
+        ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder optionsBuilder = ScrapingAntClientOptions.builder()
+                .apiKey(null);
         IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> ScrapingAntClientOptions.builder().apiKey(null).build()
+                IllegalArgumentException.class, optionsBuilder::build
         );
 
         assertEquals("apiKey is required and cannot be blank", exception.getMessage());
@@ -41,9 +43,11 @@ class ScrapingAntClientOptionsTest {
 
     @Test
     void builderRejectsBlankApiKeyAtBuild() {
+        
+        ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder optionsBuilder = ScrapingAntClientOptions.builder()
+                .apiKey("   ");
         IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> ScrapingAntClientOptions.builder().apiKey("   ").build()
+                IllegalArgumentException.class, optionsBuilder::build
         );
 
         assertEquals("apiKey is required and cannot be blank", exception.getMessage());
