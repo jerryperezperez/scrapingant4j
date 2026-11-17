@@ -232,6 +232,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
+                <version>5.7.0.6970</version>
             </plugin>
             <!-- CHANGE 2: activate JaCoCo so it actually runs on all modules -->
             <plugin>
