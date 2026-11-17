@@ -17,7 +17,7 @@ class BlockResourceTest {
     @ParameterizedTest
     @EnumSource(BlockResource.class)
     void testToStringMatchesValue(BlockResource blockResource) {
-        assertThat(blockResource.toString()).isEqualTo(blockResource.getValue());
+        assertThat(blockResource.toString()).hasToString(blockResource.getValue());
     }
 
     @Test
