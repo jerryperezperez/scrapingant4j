@@ -4,3 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "maven"
+    directory: "/scrapingant4j-core"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "maven"
+    directory: "/scrapingant4j-spring-boot-starter"
+    schedule:
+      interval: "weekly"
