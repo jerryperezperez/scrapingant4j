@@ -26,9 +26,18 @@ class ScrapingAntRequestTest {
 
     @Test
     void testBuilderThrowsExceptionWhenUrlIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> ScrapingAntRequest.builder()
-                .url(null)
-                .build());
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
+                .url(null);
+        
+        assertThrows(IllegalArgumentException.class, scrapingAntRequestBuilder::build);
+    }
+
+    @Test
+    void testBuilderThrowsExceptionWhenUrlIsBlank() {
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
+                .url("   ");
+        
+        assertThrows(IllegalArgumentException.class, scrapingAntRequestBuilder::build);
     }
 
     @Test
@@ -75,6 +84,21 @@ class ScrapingAntRequestTest {
     }
 
     @Test
+    void testBuilderAllowsBrowserOnlyValuesWhenBrowserIsOmitted() {
+        ScrapingAntRequest request = ScrapingAntRequest.builder()
+                .url("https://example.com")
+                .jsSnippet("console.log('hello');")
+                .timeout(10)
+                .build();
+
+        Map<String, Object> queryMap = request.toQueryMap();
+
+        assertFalse(queryMap.containsKey("browser"));
+        assertTrue(queryMap.containsKey("js_snippet"));
+        assertEquals(10, queryMap.get("timeout"));
+    }
+
+    @Test
     void testToQueryMapOmitsEmptyOptionalStrings() {
         ScrapingAntRequest request = ScrapingAntRequest.builder()
                 .url("https://example.com")
@@ -103,17 +127,45 @@ class ScrapingAntRequestTest {
         assertEquals(5, request.toQueryMap().get("timeout"));
     }
 
+    @Test
+    void testBuilderAcceptsMaximumTimeout() {
+        ScrapingAntRequest request = ScrapingAntRequest.builder()
+                .url("https://example.com")
+                .browser(true)
+                .timeout(60)
+                .build();
+
+        assertEquals(60, request.toQueryMap().get("timeout"));
+    }
+
+    @Test
+    void testBuilderRejectsTimeoutBelowAllowedRange() {
+        
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
+                .url("https://example.com")
+                .browser(true)
+                .timeout(4);
+        
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                scrapingAntRequestBuilder::build
+        );
+
+        assertEquals("'timeout' must be between 5 and 60 seconds", exception.getMessage());
+    }
+
     @ParameterizedTest
     @MethodSource("browserFalseValidationCases")
     void testBuilderRejectsBrowserOnlyOptionsWhenBrowserIsFalse(
             UnaryOperator<ScrapingAntRequest.ScrapingAntRequestBuilder> customizer,
             String expectedMessage
     ) {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> customizer.apply(
-                ScrapingAntRequest.builder()
-                        .url("https://example.com")
-                        .browser(false)
-        ).build());
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
+                .url("https://example.com")
+                .browser(false);
+        customizer.apply(scrapingAntRequestBuilder);
+
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class, scrapingAntRequestBuilder::build);
 
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -149,20 +201,23 @@ class ScrapingAntRequestTest {
 
     @Test
     void testInconsistentParametersThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ScrapingAntRequest.builder()
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
                 .url("https://example.com")
                 .browser(false)
-                .returnPageSource(true)
-                .build());
+                .returnPageSource(true);
+        
+        assertThrows(IllegalArgumentException.class, scrapingAntRequestBuilder::build);
     }
 
     @Test
     void testBuilderRejectsTimeoutOutsideAllowedRange() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ScrapingAntRequest.builder()
+        
+        ScrapingAntRequest.ScrapingAntRequestBuilder scrapingAntRequestBuilder = ScrapingAntRequest.builder()
                 .url("https://example.com")
                 .browser(true)
-                .timeout(61)
-                .build());
+                .timeout(61);
+        
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, scrapingAntRequestBuilder::build);
 
         assertEquals("'timeout' must be between 5 and 60 seconds", ex.getMessage());
     }
