@@ -39,13 +39,13 @@ class ScrapingAntAutoConfigurationTest {
     }
 
     @Test
-    void testCustomFeignBuilderIsAppliedToClientOptions() {
+    void testFeignBuilderBeanIsNotAutoInjected() {
         contextRunner
                 .withPropertyValues("scrapingant.api-key=custom-key")
                 .withBean(Feign.Builder.class, Feign::builder)
                 .run(context -> {
                     ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
-                    assertThat(options.getFeignBuilder()).isSameAs(context.getBean(Feign.Builder.class));
+                    assertThat(options.getFeignCustomizer()).isNull();
                 });
     }
 

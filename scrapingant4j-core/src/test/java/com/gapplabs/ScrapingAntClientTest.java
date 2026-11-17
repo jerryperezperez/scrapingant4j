@@ -4,18 +4,21 @@ import com.gapplabs.dto.ScrapingAntRequest;
 import com.gapplabs.dto.responses.ExtendedResponse;
 import com.gapplabs.dto.responses.MarkdownResponse;
 import com.google.gson.JsonSyntaxException;
+import feign.Feign;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -86,11 +89,11 @@ class ScrapingAntClientTest {
         ExtendedResponse result = client.executeExtended(request);
 
         assertEquals(200, result.statusCode());
-        assertEquals("Content-Type", result.headers().get(0).name());
-        assertEquals(201, result.xhrs().get(0).status());
-        assertEquals("application/json", result.xhrs().get(0).headers().get(0).value());
-        assertEquals("{}", result.xhrs().get(0).requestBody());
-        assertEquals("https://example.com/frame", result.iframes().get(0).src());
+        assertEquals("Content-Type", result.headers().getFirst().name());
+        assertEquals(201, result.xhrs().getFirst().status());
+        assertEquals("application/json", result.xhrs().getFirst().headers().getFirst().value());
+        assertEquals("{}", result.xhrs().getFirst().requestBody());
+        assertEquals("https://example.com/frame", result.iframes().getFirst().src());
     }
 
     @Test
@@ -109,7 +112,22 @@ class ScrapingAntClientTest {
 
         assertEquals("test-api-key", configuredClient.getOptions().getApiKey());
         assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
-        assertNotNull(configuredClient.getOptions().getFeignBuilder());
+        assertNull(configuredClient.getOptions().getFeignCustomizer());
+    }
+
+    @Test
+    void testEachClientGetsItsOwnFeignBuilder() {
+        List<Feign.Builder> customizedBuilders = new ArrayList<>();
+        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
+                .apiKey("test-api-key")
+                .feignCustomizer(customizedBuilders::add)
+                .build();
+
+        new ScrapingAntClient(options);
+        new ScrapingAntClient(options);
+
+        assertEquals(2, customizedBuilders.size());
+        assertNotSame(customizedBuilders.getFirst(), customizedBuilders.get(1));
     }
 
     @Test

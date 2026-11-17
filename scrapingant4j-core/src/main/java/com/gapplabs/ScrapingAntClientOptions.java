@@ -4,6 +4,8 @@ import feign.Feign;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.function.Consumer;
+
 /**
  * Immutable configuration for {@link ScrapingAntClient}.
  */
@@ -12,12 +14,12 @@ public final class ScrapingAntClientOptions {
 
     public static final String BASE_URL = "https://api.scrapingant.com/v2";
     private final String apiKey;
-    private final Feign.Builder feignBuilder;
+    private final Consumer<Feign.Builder> feignCustomizer;
 
     @Builder
-    private ScrapingAntClientOptions(String apiKey, Feign.Builder feignBuilder) {
+    private ScrapingAntClientOptions(String apiKey, Consumer<Feign.Builder> feignCustomizer) {
         this.apiKey = requireApiKey(apiKey);
-        this.feignBuilder = feignBuilder != null ? feignBuilder : Feign.builder();
+        this.feignCustomizer = feignCustomizer;
     }
 
     public String getBaseUrl() {
