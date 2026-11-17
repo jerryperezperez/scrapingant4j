@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,8 +88,12 @@ public class ScrapingAntClient {
     }
 
     private static ScrapingAntApi buildApi(ScrapingAntClientOptions options) {
-        Feign.Builder builder = options.getFeignBuilder()
-                .logger(new Slf4jLogger(ScrapingAntClient.class))
+        Feign.Builder builder = Feign.builder();
+        Consumer<Feign.Builder> feignCustomizer = options.getFeignCustomizer();
+        if (feignCustomizer != null) {
+            feignCustomizer.accept(builder);
+        }
+        builder.logger(new Slf4jLogger(ScrapingAntClient.class))
                 .requestInterceptor(new ScrapingAntAuthInterceptor(options.getApiKey()))
                 .errorDecoder(new ScrapingAntErrorDecoder());
         return builder.target(ScrapingAntApi.class, options.getBaseUrl());

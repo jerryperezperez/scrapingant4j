@@ -41,7 +41,6 @@
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <gson.version>2.14.0</gson.version>
         <feign.version>13.6</feign.version>
-        <jakarta.validation.version>3.1.1</jakarta.validation.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
         <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
@@ -49,7 +48,6 @@
         <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
         <spotless.maven.plugin.version>2.43.0</spotless.maven.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <httpcore5.version>5.4.3</httpcore5.version>
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
         <sonar.organization>gapp-labs</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -94,18 +92,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${org.projectlombok.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>${jakarta.validation.version}</version>
-            </dependency>
-
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
-            <dependency>
-                <groupId>org.apache.httpcomponents.core5</groupId>
-                <artifactId>httpcore5</artifactId>
-                <version>${httpcore5.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

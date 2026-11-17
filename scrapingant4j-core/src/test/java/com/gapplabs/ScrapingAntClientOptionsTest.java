@@ -3,7 +3,10 @@ package com.gapplabs;
 import feign.Feign;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Consumer;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -54,14 +57,23 @@ class ScrapingAntClientOptionsTest {
     }
 
     @Test
-    void builderUsesCustomFeignBuilderWhenProvided() {
-        Feign.Builder feignBuilder = Feign.builder();
+    void builderHasNoFeignCustomizerByDefault() {
+        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
+                .apiKey("test-api-key")
+                .build();
+
+        assertNull(options.getFeignCustomizer());
+    }
+
+    @Test
+    void builderStoresFeignCustomizerWhenProvided() {
+        Consumer<Feign.Builder> feignCustomizer = builder -> {};
 
         ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
                 .apiKey("test-api-key")
-                .feignBuilder(feignBuilder)
+                .feignCustomizer(feignCustomizer)
                 .build();
 
-        assertSame(feignBuilder, options.getFeignBuilder());
+        assertSame(feignCustomizer, options.getFeignCustomizer());
     }
 }
