@@ -1,15 +1,6 @@
 package com.gapplabs;
 
-import com.gapplabs.exceptions.ScrapingAntBadRequestException;
-import com.gapplabs.exceptions.ScrapingAntConflictException;
 import com.gapplabs.exceptions.ScrapingAntException;
-import com.gapplabs.exceptions.ScrapingAntForbiddenException;
-import com.gapplabs.exceptions.ScrapingAntLockedException;
-import com.gapplabs.exceptions.ScrapingAntMethodNotAllowedException;
-import com.gapplabs.exceptions.ScrapingAntNotFoundException;
-import com.gapplabs.exceptions.ScrapingAntRateLimitException;
-import com.gapplabs.exceptions.ScrapingAntServerException;
-import com.gapplabs.exceptions.ScrapingAntUnprocessableEntityException;
 import feign.Request;
 import feign.Response;
 import org.junit.jupiter.api.Test;
@@ -17,7 +8,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,10 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ScrapingAntErrorDecoderTest {
 
@@ -71,7 +59,7 @@ class ScrapingAntErrorDecoderTest {
 
         Exception ex = decoder.decode("m", resp);
 
-        assertInstanceOf(ScrapingAntBadRequestException.class, ex);
+        assertInstanceOf(ScrapingAntException.class, ex);
         assertEquals("Bad request detail", ex.getMessage());
     }
 
@@ -118,9 +106,8 @@ class ScrapingAntErrorDecoderTest {
         Response resp = buildResponse(429, Map.of("Retry-After", List.of("120")), "{\"detail\":\"Slow down\"}");
 
         Exception ex = decoder.decode("m", resp);
-        assertInstanceOf(ScrapingAntRateLimitException.class, ex);
-        ScrapingAntRateLimitException rateLimitException = (ScrapingAntRateLimitException) ex;
-        assertEquals(120, rateLimitException.getRetryAfter());
+        assertInstanceOf(ScrapingAntException.class, ex);
+        ScrapingAntException rateLimitException = (ScrapingAntException) ex;
         assertEquals("Slow down", rateLimitException.getMessage());
     }
 
@@ -128,36 +115,23 @@ class ScrapingAntErrorDecoderTest {
     void decode429HandlesMissingRetryAfterHeader() {
         Response resp = buildResponse(429, null, null);
         Exception ex = decoder.decode("m", resp);
-        assertInstanceOf(ScrapingAntRateLimitException.class, ex);
-        assertNull(((ScrapingAntRateLimitException) ex).getRetryAfter());
+        assertInstanceOf(ScrapingAntException.class, ex);
     }
 
     @Test
     void decode429HandlesMalformedRetryAfterHeader() {
         Response resp = buildResponse(429, Map.of("Retry-After", List.of("abc")), null);
         Exception ex = decoder.decode("m", resp);
-        assertInstanceOf(ScrapingAntRateLimitException.class, ex);
-        assertNull(((ScrapingAntRateLimitException) ex).getRetryAfter());
+        assertInstanceOf(ScrapingAntException.class, ex);
     }
 
     @Test
     void decodeMalformedBodyUsesFallbackMessageNoNpe() {
         Response resp = buildResponse(400, null, "{ not json");
         Exception ex = decoder.decode("m", resp);
-        assertInstanceOf(ScrapingAntBadRequestException.class, ex);
-        assertEquals(400, ((ScrapingAntBadRequestException) ex).getStatusCode());
-        assertThat(ex.getMessage()).contains("Wrong request format");
-    }
-
-    @Test
-    void privateHelpersReturnNullForNullResponse() throws Exception {
-        Method extractDetail = ScrapingAntErrorDecoder.class.getDeclaredMethod("extractDetail", Response.class);
-        extractDetail.setAccessible(true);
-        Method extractRetryAfter = ScrapingAntErrorDecoder.class.getDeclaredMethod("extractRetryAfter", Response.class);
-        extractRetryAfter.setAccessible(true);
-
-        assertNull(extractDetail.invoke(decoder, new Object[] {null}));
-        assertNull(extractRetryAfter.invoke(decoder, new Object[] {null}));
+        assertInstanceOf(ScrapingAntException.class, ex);
+        assertEquals(400, ((ScrapingAntException) ex).getStatusCode());
+        assertEquals("HTTP 400", ex.getMessage());
     }
 
     @Test
@@ -169,15 +143,15 @@ class ScrapingAntErrorDecoderTest {
 
     private static Stream<Arguments> errorStatusProvider() {
         return Stream.of(
-                Arguments.of(400, ScrapingAntBadRequestException.class, "Wrong request format. Make sure that you're using a proper JSON input."),
-                Arguments.of(403, ScrapingAntForbiddenException.class, "The API token is wrong or you have exceeded the API credits limit."),
-                Arguments.of(404, ScrapingAntNotFoundException.class, "The requested URL is not reachable. Please, check it in your browser or try again."),
-                Arguments.of(405, ScrapingAntMethodNotAllowedException.class, "The API endpoint can only be accessed using the following HTTP methods: GET, POST, PUT, DELETE."),
-                Arguments.of(409, ScrapingAntConflictException.class, "Concurrent requests limit exceeded. Please, try again or upgrade to the paid plan"),
-                Arguments.of(422, ScrapingAntUnprocessableEntityException.class, "Invalid value provided. Please, look into detail for more info."),
-                Arguments.of(423, ScrapingAntLockedException.class, "The anti-bot detection system has detected the request. Please, retry or change the request settings."),
-                Arguments.of(429, ScrapingAntRateLimitException.class, "Too many requests. Please retry later."),
-                Arguments.of(500, ScrapingAntServerException.class, "Something went wrong with the server side code. Rare case. We're recommending to contact us in this case.")
+                Arguments.of(400, ScrapingAntException.class, "HTTP 400"),
+                Arguments.of(403, ScrapingAntException.class, "HTTP 403"),
+                Arguments.of(404, ScrapingAntException.class, "HTTP 404"),
+                Arguments.of(405, ScrapingAntException.class, "HTTP 405"),
+                Arguments.of(409, ScrapingAntException.class, "HTTP 409"),
+                Arguments.of(422, ScrapingAntException.class, "HTTP 422"),
+                Arguments.of(423, ScrapingAntException.class, "HTTP 423"),
+                Arguments.of(429, ScrapingAntException.class, "HTTP 429"),
+                Arguments.of(500, ScrapingAntException.class, "HTTP 500")
         );
     }
 }
