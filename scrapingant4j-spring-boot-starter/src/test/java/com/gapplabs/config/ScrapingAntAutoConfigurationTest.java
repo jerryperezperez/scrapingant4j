@@ -1,0 +1,95 @@
+package com.gapplabs.config;
+
+import com.gapplabs.ScrapingAntClient;
+import com.gapplabs.ScrapingAntClientOptions;
+import feign.Feign;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ScrapingAntAutoConfigurationTest {
+
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withUserConfiguration(TestApplication.class);
+
+    @Test
+    void testScrapingAntClientBeanExists() {
+        contextRunner.withPropertyValues("scrapingant.api-key=test-api-key")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ScrapingAntClient.class);
+                    assertThat(context).hasSingleBean(ScrapingAntProperties.class);
+                    assertThat(context).hasSingleBean(ScrapingAntClientOptions.class);
+                });
+    }
+
+    @Test
+    void testConfigurationPropertiesAreLoaded() {
+        contextRunner.withPropertyValues(
+                "scrapingant.api-key=custom-key"
+        ).run(context -> {
+            ScrapingAntProperties properties = context.getBean(ScrapingAntProperties.class);
+            ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
+            assertThat(properties.getApiKey()).isEqualTo("custom-key");
+            assertThat(options.getBaseUrl()).isEqualTo(ScrapingAntClientOptions.BASE_URL);
+        });
+    }
+
+    @Test
+    void testCustomFeignBuilderIsAppliedToClientOptions() {
+        contextRunner
+                .withPropertyValues("scrapingant.api-key=custom-key")
+                .withBean(Feign.Builder.class, Feign::builder)
+                .run(context -> {
+                    ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
+                    assertThat(options.getFeignBuilder()).isSameAs(context.getBean(Feign.Builder.class));
+                });
+    }
+
+    @Test
+    void testAutoConfigurationIsDiscoveredFromMetadata() {
+        contextRunner.withPropertyValues("scrapingant.api-key=test-api-key")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ScrapingAntClient.class);
+                    assertThat(context).hasSingleBean(ScrapingAntClientOptions.class);
+                });
+    }
+
+    @Test
+    void testAutoConfigurationDoesNotCreateBeansWithoutApiKey() {
+        contextRunner.run(context -> {
+            assertThat(context).hasSingleBean(ScrapingAntProperties.class);
+            assertThat(context).doesNotHaveBean(ScrapingAntClient.class);
+            assertThat(context).doesNotHaveBean(ScrapingAntClientOptions.class);
+        });
+    }
+
+    @Test
+    void testClientBeanBacksOffWhenUserProvidesCustomBean() {
+        new ApplicationContextRunner()
+                .withUserConfiguration(CustomClientApplication.class)
+                .withPropertyValues("scrapingant.api-key=test-api-key")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ScrapingAntClient.class);
+                    assertThat(context).doesNotHaveBean(ScrapingAntClientOptions.class);
+                });
+    }
+
+    @SpringBootConfiguration
+    @EnableAutoConfiguration
+    static class TestApplication {
+    }
+
+    @SpringBootConfiguration
+    @EnableAutoConfiguration
+    static class CustomClientApplication {
+
+        @Bean
+        ScrapingAntClient scrapingAntClient() {
+            return new ScrapingAntClient("custom");
+        }
+    }
+}
