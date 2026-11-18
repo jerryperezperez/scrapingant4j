@@ -1,81 +1,57 @@
 package com.gapplabs;
 
-
 import java.time.Duration;
-import java.util.Objects;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
 /** Immutable configuration for {@link ScrapingAntClient}. */
-@Getter
 public final class ScrapingAntClientOptions {
-
-  public static final String DEFAULT_BASE_URL = "https://api.scrapingant.com/v2";
-
-  @Getter(AccessLevel.NONE)
-  private final String apiKey;
   
-  private final Duration connectTimeout;
-  private final Duration readTimeout;
-
+  public static final String DEFAULT_BASE_URL = "https://api.scrapingant.com/v2";
+  
+  private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(5);
+  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration MIN_TIMEOUT = Duration.ofMillis(1);
+  private static final Duration MAX_TIMEOUT = Duration.ofMillis(Integer.MAX_VALUE);
+  
+  private final String apiKey;
+  @Getter private final Duration connectTimeout;
+  @Getter private final Duration readTimeout;
+  
   @Builder
-  private ScrapingAntClientOptions(
-      String apiKey,
-      Duration connectTimeout,
-      Duration readTimeout) {
+  private ScrapingAntClientOptions(String apiKey, Duration connectTimeout, Duration readTimeout) {
     this.apiKey = requireApiKey(apiKey);
-    this.connectTimeout = requireTimeout(connectTimeout, "connectTimeout");
-    this.readTimeout = requireTimeout(readTimeout, "readTimeout");
+    this.connectTimeout =
+            requireTimeout(
+                    connectTimeout == null ? DEFAULT_CONNECT_TIMEOUT : connectTimeout, "connectTimeout");
+    this.readTimeout =
+            requireTimeout(readTimeout == null ? DEFAULT_READ_TIMEOUT : readTimeout, "readTimeout");
   }
-
+  
   String apiKey() {
     return apiKey;
   }
-
-  /** Partial Lombok builder for defaults and secret-safe logging. */
+  
+  /** Lombok generates the setters and build(); this only hides the key from toString. */
   public static class ScrapingAntClientOptionsBuilder {
-
-    private Duration connectTimeout = Duration.ofSeconds(5);
-    private Duration readTimeout = Duration.ofSeconds(60);
-
-    public ScrapingAntClientOptionsBuilder connectTimeout(Duration connectTimeout) {
-      this.connectTimeout = connectTimeout;
-      return this;
-    }
-
-    public ScrapingAntClientOptionsBuilder readTimeout(Duration readTimeout) {
-      this.readTimeout = readTimeout;
-      return this;
-    }
-
-    public ScrapingAntClientOptions build() {
-      return new ScrapingAntClientOptions(apiKey, connectTimeout, readTimeout);
-    }
-
     @Override
     public String toString() {
       return "ScrapingAntClientOptionsBuilder[apiKey=<redacted>]";
     }
   }
-
+  
   private static String requireApiKey(String apiKey) {
     if (apiKey == null || apiKey.isBlank()) {
       throw new IllegalArgumentException("apiKey is required and cannot be blank");
     }
     return apiKey.trim();
   }
-
+  
   private static Duration requireTimeout(Duration timeout, String name) {
-    Objects.requireNonNull(timeout, name);
-    if (timeout.isZero()
-        || timeout.isNegative()
-        || timeout.compareTo(Duration.ofMillis(Integer.MAX_VALUE)) > 0
-        || timeout.toMillis() < 1) {
+    if (timeout.compareTo(MIN_TIMEOUT) < 0 || timeout.compareTo(MAX_TIMEOUT) > 0) {
       throw new IllegalArgumentException(
-          name + " must be between 1 ms and " + Integer.MAX_VALUE + " ms");
+              name + " must be between 1 ms and " + Integer.MAX_VALUE + " ms");
     }
     return timeout;
   }
-
 }
