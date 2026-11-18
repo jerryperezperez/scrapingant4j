@@ -1,0 +1,21 @@
+{
+  "properties": [
+    {
+      "name": "scrapingant.api-key",
+      "type": "java.lang.String",
+      "description": "ScrapingAnt API key. Supply it through an environment variable or secret store."
+    },
+    {
+      "name": "scrapingant.connect-timeout",
+      "type": "java.time.Duration",
+      "description": "Maximum time to establish a connection.",
+      "defaultValue": "5s"
+    },
+    {
+      "name": "scrapingant.read-timeout",
+      "type": "java.time.Duration",
+      "description": "Maximum time to wait for response data.",
+      "defaultValue": "60s"
+    }
+  ]
+}

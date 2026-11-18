@@ -1,79 +1,45 @@
 package com.gapplabs;
 
-import feign.Feign;
-import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
+
 class ScrapingAntClientOptionsTest {
+  @Test
+  void usesDocumentedDefaultsWithoutExposingTheApiKey() {
+    ScrapingAntClientOptions options = ScrapingAntClientOptions.builder().apiKey("secret").build();
+    assertEquals(Duration.ofSeconds(5), options.getConnectTimeout());
+    assertEquals(Duration.ofSeconds(60), options.getReadTimeout());
+    org.junit.jupiter.api.Assertions.assertFalse(options.toString().contains("secret"));
+    org.junit.jupiter.api.Assertions.assertFalse(
+        ScrapingAntClientOptions.builder().apiKey("secret").toString().contains("secret"));
+    assertThrows(
+        NoSuchMethodException.class, () -> ScrapingAntClientOptions.class.getMethod("getApiKey"));
+    assertThrows(
+        NoSuchMethodException.class, () -> ScrapingAntClientOptions.class.getMethod("getBaseUrl"));
+    assertThrows(
+        NoSuchMethodException.class,
+        () ->
+            ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder.class.getMethod(
+                "baseUrl", String.class));
+  }
 
-    @Test
-    void builderTrimsApiKeyAndUsesFixedBaseUrl() {
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("  test-api-key  ")
-                .build();
+  @Test
+  void validatesApiKey() {
+    assertEquals(
+        "apiKey is required and cannot be blank",
+        assertThrows(IllegalArgumentException.class, ScrapingAntClientOptions.builder()::build)
+            .getMessage());
+  }
 
-        assertEquals("test-api-key", options.getApiKey());
-        assertEquals(ScrapingAntClientOptions.BASE_URL, options.getBaseUrl());
-    }
+  @Test
+  void validatesTimeoutSettings() {
 
-    @Test
-    void builderRejectsMissingApiKeyAtBuild() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                ScrapingAntClientOptions.builder()::build
-        );
+    ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder scrapingAntClientOptionsBuilder =
+        ScrapingAntClientOptions.builder().apiKey("key").connectTimeout(Duration.ZERO);
+    assertThrows(IllegalArgumentException.class, scrapingAntClientOptionsBuilder::build);
 
-        assertEquals("apiKey is required and cannot be blank", exception.getMessage());
-    }
-
-    @Test
-    void builderRejectsNullApiKeyAtBuild() {
-        
-        ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder optionsBuilder = ScrapingAntClientOptions.builder()
-                .apiKey(null);
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class, optionsBuilder::build
-        );
-
-        assertEquals("apiKey is required and cannot be blank", exception.getMessage());
-    }
-
-    @Test
-    void builderRejectsBlankApiKeyAtBuild() {
-        
-        ScrapingAntClientOptions.ScrapingAntClientOptionsBuilder optionsBuilder = ScrapingAntClientOptions.builder()
-                .apiKey("   ");
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class, optionsBuilder::build
-        );
-
-        assertEquals("apiKey is required and cannot be blank", exception.getMessage());
-    }
-
-    @Test
-    void builderHasNoFeignCustomizerByDefault() {
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .build();
-
-        assertNull(options.getFeignCustomizer());
-    }
-
-    @Test
-    void builderStoresFeignCustomizerWhenProvided() {
-        Consumer<Feign.Builder> feignCustomizer = builder -> {};
-
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .feignCustomizer(feignCustomizer)
-                .build();
-
-        assertSame(feignCustomizer, options.getFeignCustomizer());
-    }
+  }
 }

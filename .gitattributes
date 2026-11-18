@@ -1,0 +1,5 @@
+# Keep git-generated source archives focused on source and documentation.
+.git* export-ignore
+.idea/ export-ignore
+**/target/ export-ignore
+*.iml export-ignore

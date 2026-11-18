@@ -1,19 +1,14 @@
 package com.gapplabs.exceptions;
 
-import lombok.Getter;
-
-/**
- * Base exception for ScrapingAnt SDK.
- * Immutable: final fields, no setters.
- */
-@Getter
+/** Base exception for failures while calling the ScrapingAnt API. */
 public class ScrapingAntException extends RuntimeException {
-    private final int statusCode;
+  /** Creates an SDK exception with a safe diagnostic message. */
+  public ScrapingAntException(String message) {
+    super(message);
+  }
 
-
-    public ScrapingAntException(int statusCode, String message) {
-        super(message);
-        this.statusCode = statusCode;
-    }
-    
+  /** Creates an SDK exception and preserves the underlying cause. */
+  public ScrapingAntException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
