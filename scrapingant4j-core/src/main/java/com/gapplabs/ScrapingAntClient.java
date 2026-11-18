@@ -10,6 +10,7 @@ import feign.Request;
 import feign.RetryableException;
 import feign.Retryer;
 import feign.slf4j.Slf4jLogger;
+import lombok.Getter;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -24,18 +25,21 @@ import java.util.stream.Stream;
 /**
  * Thin SDK client for ScrapingAnt.
  */
-public record ScrapingAntClient(ScrapingAntApi api, ScrapingAntClientOptions options) {
-  
+public class ScrapingAntClient {
+  private final ScrapingAntApi api;
+  @Getter private final ScrapingAntClientOptions options;
+
   public ScrapingAntClient(String apiKey) {
     this(ScrapingAntClientOptions.builder().apiKey(apiKey).build());
   }
-  
+
   public ScrapingAntClient(ScrapingAntClientOptions options) {
     this(options, buildApi(options));
   }
-  
+
   ScrapingAntClient(ScrapingAntClientOptions options, ScrapingAntApi api) {
-    this(Objects.requireNonNull(api, "api"), Objects.requireNonNull(options, "options"));
+    this.options = Objects.requireNonNull(options, "options");
+    this.api = Objects.requireNonNull(api, "api");
   }
   
   /**

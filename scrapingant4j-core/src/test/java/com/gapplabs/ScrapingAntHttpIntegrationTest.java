@@ -183,9 +183,9 @@ class ScrapingAntHttpIntegrationTest {
             .readTimeout(readTimeout)
             .build();
     return new ScrapingAntClient(
+        options,
         ScrapingAntClient.buildApi(
-            options, "http://localhost:" + server.getAddress().getPort() + "/v2"),
-        options);
+            options, "http://localhost:" + server.getAddress().getPort() + "/v2"));
   }
 
   private static ScrapingAntRequest request() {
