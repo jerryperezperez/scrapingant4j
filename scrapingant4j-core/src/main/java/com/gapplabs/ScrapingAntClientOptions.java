@@ -35,9 +35,23 @@ public final class ScrapingAntClientOptions {
 
   /** Partial Lombok builder for defaults and secret-safe logging. */
   public static class ScrapingAntClientOptionsBuilder {
-    
+
     private Duration connectTimeout = Duration.ofSeconds(5);
     private Duration readTimeout = Duration.ofSeconds(60);
+
+    public ScrapingAntClientOptionsBuilder connectTimeout(Duration connectTimeout) {
+      this.connectTimeout = connectTimeout;
+      return this;
+    }
+
+    public ScrapingAntClientOptionsBuilder readTimeout(Duration readTimeout) {
+      this.readTimeout = readTimeout;
+      return this;
+    }
+
+    public ScrapingAntClientOptions build() {
+      return new ScrapingAntClientOptions(apiKey, connectTimeout, readTimeout);
+    }
 
     @Override
     public String toString() {

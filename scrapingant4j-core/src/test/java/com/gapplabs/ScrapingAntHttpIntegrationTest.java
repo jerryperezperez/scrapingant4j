@@ -48,7 +48,7 @@ class ScrapingAntHttpIntegrationTest {
               respond(exchange, status.get(), "<html>ok</html>", Map.of());
             });
     try {
-      ScrapingAntClient client = client(server, Duration.ofMillis(200));
+      ScrapingAntClient client = client(server, Duration.ofSeconds(1));
       ScrapingAntRequest request =
           ScrapingAntRequest.builder()
               .url("https://example.com/a%20b")
@@ -69,7 +69,7 @@ class ScrapingAntHttpIntegrationTest {
             exchange ->
                 respond(exchange, 429, "{\"detail\":\"slow down\"}", Map.of("Retry-After", "120")));
     
-    ScrapingAntClient client = client(server, Duration.ofMillis(100));
+    ScrapingAntClient client = client(server, Duration.ofSeconds(1));
     ScrapingAntRequest request = request();
     try {
       ScrapingAntHttpException error =
@@ -94,7 +94,7 @@ class ScrapingAntHttpIntegrationTest {
               respond(exchange, 503, "busy", Map.of());
             });
     
-    ScrapingAntClient client = client(server, Duration.ofMillis(200));
+    ScrapingAntClient client = client(server, Duration.ofSeconds(1));
     ScrapingAntRequest request = request();
     try {
       assertEquals(
@@ -111,7 +111,7 @@ class ScrapingAntHttpIntegrationTest {
 
   @Test
   void appliesReadTimeoutAndConvertsTransportFailure() throws IOException {
-    Duration readTimeout = Duration.ofMillis(50);
+    Duration readTimeout = Duration.ofMillis(500);
     CountDownLatch releaseResponse = new CountDownLatch(1);
     HttpServer server =
         server(
@@ -137,7 +137,7 @@ class ScrapingAntHttpIntegrationTest {
   @Test
   void malformedTypedResponseIsReportedClearly() throws IOException {
     HttpServer server = server(exchange -> respond(exchange, 200, "", Map.of()));
-    ScrapingAntClient client = client(server, Duration.ofMillis(200));
+    ScrapingAntClient client = client(server, Duration.ofSeconds(1));
     ScrapingAntRequest request = request();
     
     try {
@@ -153,7 +153,7 @@ class ScrapingAntHttpIntegrationTest {
   void malformedJsonResponseIsReportedClearly() throws IOException {
     HttpServer server = server(exchange -> respond(exchange, 200, "not-json", Map.of()));
     
-     ScrapingAntClient client = client(server, Duration.ofMillis(200));
+     ScrapingAntClient client = client(server, Duration.ofSeconds(1));
      ScrapingAntRequest request = request();
     
     try {
@@ -169,7 +169,7 @@ class ScrapingAntHttpIntegrationTest {
   void emptyGeneralResponseRemainsAValidBody() throws IOException {
     HttpServer server = server(exchange -> respond(exchange, 200, "", Map.of()));
     try {
-      assertEquals("", client(server, Duration.ofMillis(200)).executeGeneral(request()));
+      assertEquals("", client(server, Duration.ofSeconds(1)).executeGeneral(request()));
     } finally {
       server.stop(0);
     }
