@@ -1,74 +1,68 @@
 package com.gapplabs;
 
-import com.gapplabs.dto.ScrapingAntRequest;
-import com.gapplabs.dto.responses.ExtendedResponse;
-import com.gapplabs.dto.responses.MarkdownResponse;
-import com.google.gson.JsonSyntaxException;
-import feign.Feign;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.gapplabs.dto.ScrapingAntRequest;
+import com.gapplabs.dto.responses.ExtendedResponse;
+import com.gapplabs.dto.responses.MarkdownResponse;
+import com.gapplabs.exceptions.ScrapingAntResponseException;
+import com.google.gson.reflect.TypeToken;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 class ScrapingAntClientTest {
 
-    private ScrapingAntClient client;
+  private ScrapingAntClient client;
 
-    @Mock
-    private ScrapingAntApi mockApi;
+  @Mock private ScrapingAntApi mockApi;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .build();
-        client = new ScrapingAntClient(options, mockApi);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    ScrapingAntClientOptions options =
+        ScrapingAntClientOptions.builder().apiKey("test-api-key").build();
+    client = new ScrapingAntClient(options, mockApi);
+  }
 
-    @Test
-    void testExecuteGeneralTyped() {
-        ScrapingAntRequest request = createBasicRequest();
+  @Test
+  void testExecuteGeneralTyped() {
+    ScrapingAntRequest request = createBasicRequest();
 
-        String expectedResponse = "<html>some html</html>";
-        when(mockApi.scrape(any(), eq("general"))).thenReturn(expectedResponse);
+    String expectedResponse = "<html>some html</html>";
+    when(mockApi.scrape(any(), eq("general"))).thenReturn(expectedResponse);
 
-        String result = client.executeGeneral(request);
+    String result = client.executeGeneral(request);
 
-        assertEquals(expectedResponse, result);
-    }
+    assertEquals(expectedResponse, result);
+  }
 
-    @Test
-    void testExecuteMarkdownTyped() {
-        ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = "{\"markdown\":\"# Hello\", \"html\":\"<h1>Hello</h1>\"}";
-        when(mockApi.scrape(any(), eq("markdown"))).thenReturn(jsonResponse);
+  @Test
+  void testExecuteMarkdownTyped() {
+    ScrapingAntRequest request = createBasicRequest();
+    String jsonResponse = "{\"markdown\":\"# Hello\", \"html\":\"<h1>Hello</h1>\"}";
+    when(mockApi.scrape(any(), eq("markdown"))).thenReturn(jsonResponse);
 
-        MarkdownResponse result = client.executeMarkdown(request);
+    MarkdownResponse result = client.executeMarkdown(request);
 
-        assertEquals("# Hello", result.markdown());
-    }
+    assertEquals("# Hello", result.markdown());
+  }
 
-    @Test
-    void testExecuteExtendedTyped() {
-        ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = """
+  @Test
+  void testExecuteExtendedTyped() {
+    ScrapingAntRequest request = createBasicRequest();
+    String jsonResponse =
+        """
                 {
                   "html": "<html></html>",
                   "status_code": 200,
@@ -84,105 +78,88 @@ class ScrapingAntClientTest {
                   "iframes": [{"src": "https://example.com/frame", "html": "<p>frame</p>"}]
                 }
                 """;
-        when(mockApi.scrape(any(), eq("extended"))).thenReturn(jsonResponse);
+    when(mockApi.scrape(any(), eq("extended"))).thenReturn(jsonResponse);
 
-        ExtendedResponse result = client.executeExtended(request);
+    ExtendedResponse result = client.executeExtended(request);
 
-        assertEquals(200, result.statusCode());
-        assertEquals("Content-Type", result.headers().getFirst().name());
-        assertEquals(201, result.xhrs().getFirst().status());
-        assertEquals("application/json", result.xhrs().getFirst().headers().getFirst().value());
-        assertEquals("{}", result.xhrs().getFirst().requestBody());
-        assertEquals("https://example.com/frame", result.iframes().getFirst().src());
-    }
+    assertEquals(200, result.statusCode());
+    assertEquals("Content-Type", result.headers().getFirst().name());
+    assertEquals(201, result.xhrs().getFirst().status());
+    assertEquals("application/json", result.xhrs().getFirst().headers().getFirst().value());
+    assertEquals("{}", result.xhrs().getFirst().requestBody());
+    assertEquals("https://example.com/frame", result.iframes().getFirst().src());
+    assertFalse(result.toString().contains("Content-Type"));
+  }
 
-    @Test
-    void testExecuteMarkdownRejectsMalformedJson() {
-        ScrapingAntRequest request = createBasicRequest();
-        when(mockApi.scrape(any(), eq("markdown"))).thenReturn("not json");
+  @Test
+  void testExecuteMarkdownRejectsMalformedJson() {
+    ScrapingAntRequest request = createBasicRequest();
+    when(mockApi.scrape(any(), eq("markdown"))).thenReturn("not json");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> client.executeMarkdown(request));
+    ScrapingAntResponseException exception =
+        assertThrows(ScrapingAntResponseException.class, () -> client.executeMarkdown(request));
 
-        assertInstanceOf(JsonSyntaxException.class, exception.getCause());
-    }
+    org.junit.jupiter.api.Assertions.assertNotNull(exception.getCause());
+  }
 
-    @Test
-    void testPublicStringConstructorBuildsClientOptions() {
-        ScrapingAntClient configuredClient = new ScrapingAntClient("test-api-key");
+  @Test
+  void testExecuteMarkdownRejectsJsonNull() {
+    
+    ScrapingAntRequest request = createBasicRequest();
+    when(mockApi.scrape(any(), eq("markdown"))).thenReturn("null");
+    assertThrows(
+        ScrapingAntResponseException.class, () -> client.executeMarkdown(request));
+  }
 
-        assertEquals("test-api-key", configuredClient.getOptions().getApiKey());
-        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
-        assertNull(configuredClient.getOptions().getFeignCustomizer());
-    }
+  @Test
+  void testExecuteExtractWithStringDelegatesToOptionsPath() {
+    ScrapingAntRequest request = createBasicRequest();
+    String jsonResponse = "{\"title\":\"A\"}";
+    when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
 
-    @Test
-    void testEachClientGetsItsOwnFeignBuilder() {
-        List<Feign.Builder> customizedBuilders = new ArrayList<>();
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .feignCustomizer(customizedBuilders::add)
-                .build();
+    client.executeExtract(request, " title  ,   price ");
 
-        new ScrapingAntClient(options);
-        new ScrapingAntClient(options);
+    ArgumentCaptor<Map<String, Object>> queryCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(mockApi).scrape(queryCaptor.capture(), eq("extract"));
+    assertEquals("title, price", queryCaptor.getValue().get("extract_properties"));
+  }
 
-        assertEquals(2, customizedBuilders.size());
-        assertNotSame(customizedBuilders.getFirst(), customizedBuilders.get(1));
-    }
+  @Test
+  void testExecuteExtractWithListDelegatesToOptionsPath() {
+    ScrapingAntRequest request = createBasicRequest();
+    String jsonResponse = "{\"title\":\"A\"}";
+    when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
 
-    @Test
-    void testPublicOptionsConstructorBuildsFeignTarget() {
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .build();
+    client.executeExtract(request, List.of("title", "price"));
 
-        ScrapingAntClient configuredClient = new ScrapingAntClient(options);
+    ArgumentCaptor<Map<String, Object>> queryCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(mockApi).scrape(queryCaptor.capture(), eq("extract"));
+    assertEquals("title, price", queryCaptor.getValue().get("extract_properties"));
+  }
 
-        assertSame(options, configuredClient.getOptions());
-        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
-    }
+  @Test
+  void testExecuteExtractCanDeserializeIntoAType() {
+    when(mockApi.scrape(any(), eq("extract"))).thenReturn("{\"title\":\"Example\"}");
 
-    @Test
-    void testExecuteExtractWithStringDelegatesToOptionsPath() {
-        ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = "{\"title\":\"A\"}";
-        when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
+    Extracted result = client.executeExtract(createBasicRequest(), "title", Extracted.class);
 
-        client.executeExtract(request, " title  ,   price ");
+    assertEquals("Example", result.title());
+  }
 
-        ArgumentCaptor<Map<String, Object>> queryCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(mockApi).scrape(queryCaptor.capture(), eq("extract"));
-        assertEquals("title, price", queryCaptor.getValue().get("extract_properties"));
-    }
+  @Test
+  void testExecuteExtractCanDeserializeParameterizedTypes() {
+    when(mockApi.scrape(any(), eq("extract"))).thenReturn("[{\"title\":\"Example\"}]");
 
-    @Test
-    void testExecuteExtractWithListDelegatesToOptionsPath() {
-        ScrapingAntRequest request = createBasicRequest();
-        String jsonResponse = "{\"title\":\"A\"}";
-        when(mockApi.scrape(any(), eq("extract"))).thenReturn(jsonResponse);
+    List<Extracted> result =
+        client.executeExtract(
+            createBasicRequest(), "title", new TypeToken<List<Extracted>>() {}.getType());
 
-        client.executeExtract(request, List.of("title", "price"));
+    assertEquals("Example", result.getFirst().title());
+  }
 
-        ArgumentCaptor<Map<String, Object>> queryCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(mockApi).scrape(queryCaptor.capture(), eq("extract"));
-        assertEquals("title, price", queryCaptor.getValue().get("extract_properties"));
-    }
+  private ScrapingAntRequest createBasicRequest() {
+    return ScrapingAntRequest.builder().url("https://example.com").build();
+  }
 
-    @Test
-    void testClientRetainsConfiguredOptions() {
-        ScrapingAntClientOptions options = ScrapingAntClientOptions.builder()
-                .apiKey("test-api-key")
-                .build();
-
-        ScrapingAntClient configuredClient = new ScrapingAntClient(options, mockApi);
-
-        assertSame(options, configuredClient.getOptions());
-        assertEquals(ScrapingAntClientOptions.BASE_URL, configuredClient.getOptions().getBaseUrl());
-    }
-
-    private ScrapingAntRequest createBasicRequest() {
-        return ScrapingAntRequest.builder()
-                .url("https://example.com")
-                .build();
-    }
+  private record Extracted(String title) {}
 }

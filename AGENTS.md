@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Java 21 Maven multi-module SDK for the ScrapingAnt API. Core uses Feign and Gson. The parent POM manages shared dependency versions, including the Spring Boot and Spring Cloud BOMs.
+Java 21 Maven multi-module SDK for the ScrapingAnt API. Core uses Feign and Gson. The parent POM manages shared dependency versions, including the Spring Boot BOM.
 
 ## Modules
 

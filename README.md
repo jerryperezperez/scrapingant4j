@@ -1,34 +1,34 @@
-[![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=jerryperezperez_scrapingant4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jerryperezperez_scrapingant4j)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jerryperezperez_scrapingant4j&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jerryperezperez_scrapingant4j)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jerryperezperez_scrapingant4j&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jerryperezperez_scrapingant4j)
-
 # scrapingant4j
 
-A lightweight Java client for the [ScrapingAnt](https://scrapingant.com) web scraping API. It handles request building, validation and response parsing, so you don't have to deal with raw HTTP calls.
+[![Quality gate](https://sonarcloud.io/api/project_badges/measure?project=jerryperezperez_scrapingant4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jerryperezperez_scrapingant4j)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jerryperezperez_scrapingant4j&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jerryperezperez_scrapingant4j)
 
-> Unofficial client, not affiliated with ScrapingAnt.
+An unofficial Java SDK for the [ScrapingAnt API](https://scrapingant.com). The SDK builds and validates requests, sends API-key-authenticated HTTP requests, and maps JSON responses.
 
-## Features
+## Project status
 
-- Four endpoints: `general` (raw HTML), `markdown`, `extended` (HTML, headers, XHRs, iframes) and `extract` (AI data extraction)
-- Typed request builder with validation of invalid option combinations
-- Typed responses for `markdown` and `extended`
-- Spring Boot starter with auto-configuration
+The project is not yet published to Maven Central. The current development version is `1.0.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
 
-## Requirements
+## Modules and requirements
 
-- Java 21 or later
-
-## Installation
-
-> **Status:** not yet published to Maven Central. Until the first release, build locally with `mvn install` and depend on the version you installed (`1.0.0-SNAPSHOT` currently).
-
-| Use case | Artifact |
+| Module | Purpose |
 |---|---|
-| Plain Java | `com.gapplabs:scrapingant4j-core` |
-| Spring Boot | `com.gapplabs:scrapingant4j-spring-boot-starter` |
+| `scrapingant4j-core` | Plain Java client. Does not depend on Spring. |
+| `scrapingant4j-spring-boot-starter` | Spring Boot configuration and auto-configuration for the core client. |
 
-``` xml
+Java 21 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
+
+## Install locally
+
+Until the first stable Central release, build and install both modules from a checkout:
+
+```shell
+mvn -B -ntp clean install
+```
+
+Add one of these dependencies using the version installed locally:
+
+```xml
 <dependency>
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j-core</artifactId>
@@ -36,14 +36,16 @@ A lightweight Java client for the [ScrapingAnt](https://scrapingant.com) web scr
 </dependency>
 ```
 
-## Quick start (plain Java)
+For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
 
-``` java
+## Quick start: plain Java
+
+```java
 import com.gapplabs.ScrapingAntClient;
 import com.gapplabs.dto.ScrapingAntRequest;
 
-ScrapingAntClient client = new ScrapingAntClient("your-api-key");
-
+String apiKey = System.getenv("SCRAPINGANT_API_KEY");
+ScrapingAntClient client = new ScrapingAntClient(apiKey);
 ScrapingAntRequest request = ScrapingAntRequest.builder()
         .url("https://example.com")
         .build();
@@ -51,122 +53,99 @@ ScrapingAntRequest request = ScrapingAntRequest.builder()
 String html = client.executeGeneral(request);
 ```
 
-Load the API key from an environment variable or a secret store. Never hardcode or commit it.
+The client also provides `executeMarkdown`, `executeExtended`, and `executeExtract`. Extract responses can be returned as `Map<String, Object>` or deserialized using a `Class<T>` or Gson `Type` token.
 
-### Other endpoints
+Request options are sent only when set, preserving the API's defaults. URLs must be absolute HTTP or HTTPS URLs with a host. Browser-only fields such as `jsSnippet`, `cssSelector`, and `waitForSelector` require `browser(true)`.
 
-These examples use the `client` and `request` from the quick start.
+## Spring Boot example
 
-``` java
-import com.gapplabs.dto.responses.ExtendedResponse;
-import com.gapplabs.dto.responses.MarkdownResponse;
-
-import java.util.List;
-import java.util.Map;
-
-MarkdownResponse md = client.executeMarkdown(request);
-ExtendedResponse extended = client.executeExtended(request);
-
-Map<String, Object> data =
-        client.executeExtract(request, List.of("title", "price"));
-```
-
-### Request options
-
-Build a request with browser-specific options like this:
-
-``` java
-import com.gapplabs.constants.BlockResource;
-import com.gapplabs.constants.ProxyCountry;
-import com.gapplabs.constants.ProxyType;
-import com.gapplabs.dto.ScrapingAntRequest;
-
-import java.util.List;
-
-ScrapingAntRequest request = ScrapingAntRequest.builder()
-        .url("https://example.com")
-        .browser(true)
-        .proxyType(ProxyType.RESIDENTIAL)
-        .proxyCountry(ProxyCountry.GERMANY)
-        .waitForSelector(".product")
-        .blockResources(List.of(BlockResource.IMAGE, BlockResource.FONT))
-        .timeout(30)
-        .build();
-```
-
-| Option | Notes |
-|---|---|
-| `url` | Required |
-| `browser` | Defaults to the API's default when omitted |
-| `proxyType`, `proxyCountry` | Proxy selection |
-| `cookies` | Sent as provided |
-| `jsSnippet` | Base64-encoded for you; only allowed when `browser=true` |
-| `waitForSelector`, `cssSelector` | Only allowed when `browser=true` |
-| `returnPageSource` | `true` requires `browser=true`; `false` is allowed when `browser=false` |
-| `blockResources` | A non-empty list requires `browser=true`; an empty list is allowed when `browser=false` |
-| `timeout` | Only allowed when `browser=true`; must be 5 to 60 seconds |
-
-Only options you set explicitly are sent, so ScrapingAnt's own defaults apply to everything else.
-
-## Error handling
-
-HTTP errors from the API throw `ScrapingAntException`, which carries the status code and the API's `detail` message when provided. If there is no usable `detail`, the message falls back to `HTTP <status>`.
-
-The example uses the `client` and `request` from the quick start.
-
-``` java
-import com.gapplabs.exceptions.ScrapingAntException;
-
-try {
-    client.executeGeneral(request);
-} catch (ScrapingAntException e) {
-    int status = e.getStatusCode();
-    // handle, e.g. 429 (rate limit) or 4xx/5xx
-}
-```
-
-Invalid requests throw `IllegalArgumentException` before any network call is made.
-
-## Spring Boot
-
-``` xml
-<dependency>
-    <groupId>com.gapplabs</groupId>
-    <artifactId>scrapingant4j-spring-boot-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-</dependency>
-```
+Add the starter dependency, then configure the key through an environment variable:
 
 ```properties
 scrapingant.api-key=${SCRAPINGANT_API_KEY}
 ```
 
-A `ScrapingAntClient` bean is created when `scrapingant.api-key` is set. Define your own `ScrapingAntClient` bean to override it.
+The starter creates a `ScrapingAntClient` bean when `scrapingant.api-key` is configured. A minimal runnable app can use a `CommandLineRunner`:
 
-``` java
+```java
 import com.gapplabs.ScrapingAntClient;
-import org.springframework.stereotype.Service;
+import com.gapplabs.dto.ScrapingAntRequest;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-@Service
-public class ScrapingService {
-    private final ScrapingAntClient client;
+@SpringBootApplication
+public class ExampleApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ExampleApplication.class, args);
+    }
 
-    public ScrapingService(ScrapingAntClient client) {
-        this.client = client;
+    @Bean
+    CommandLineRunner scrapeExample(ScrapingAntClient client) {
+        return args -> {
+            var request = ScrapingAntRequest.builder().url("https://example.com").build();
+            System.out.println(client.executeGeneral(request));
+        };
     }
 }
 ```
 
-## Building
+### Spring configuration
 
-``` bash
+| Property | Type | Default | Validation / meaning |
+|---|---|---|---|
+| `scrapingant.api-key` | String | none | Required to auto-configure the client; keep it in an environment variable or secret store. |
+| `scrapingant.connect-timeout` | Duration | `5s` | Positive duration up to the Feign millisecond limit. |
+| `scrapingant.read-timeout` | Duration | `60s` | Positive duration up to the Feign millisecond limit. |
+
+Example overrides:
+
+```properties
+scrapingant.connect-timeout=3s
+scrapingant.read-timeout=20s
+```
+
+These settings are also available through `ScrapingAntClientOptions.builder()` in plain Java.
+
+## HTTP behavior and errors
+
+Connection and read timeouts default to 5 and 60 seconds. The SDK does not automatically retry failed requests. HTTP errors expose their status code and, for rate limits, a parsed `Retry-After` duration when provided. Callers decide whether to issue another request, taking their own billing and application semantics into account.
+
+All SDK failures derive from `ScrapingAntException`:
+
+| Exception | Meaning | Metadata |
+|---|---|---|
+| `ScrapingAntHttpException` | Non-success HTTP response | `getStatusCode()`, optional `getRetryAfter()` duration |
+| `ScrapingAntNetworkException` | Transport failure without a usable response | Original cause |
+| `ScrapingAntResponseException` | Empty, JSON null, or malformed typed response | Original cause for parse failures |
+
+`Retry-After` accepts seconds or an RFC 1123 date. Invalid or missing values produce `null`. `executeGeneral` returns the response body as-is, including an empty body. Typed JSON operations reject empty bodies and JSON `null` with `ScrapingAntResponseException`.
+
+```java
+try {
+    client.executeGeneral(request);
+} catch (ScrapingAntHttpException e) {
+    if (e.getStatusCode() == 429 && e.getRetryAfter() != null) {
+        // Decide at the application boundary whether and when to retry.
+    }
+} catch (ScrapingAntNetworkException | ScrapingAntResponseException e) {
+    // Handle transport and response failures separately.
+}
+```
+
+The API key and request cookies/JavaScript are excluded from generated string representations. Avoid logging raw request query maps or raw response bodies, which may contain user data.
+
+## Build and test
+
+```shell
 mvn -B -ntp clean verify
 ```
 
-## Contributing
+CI tests Java 21 and 25. Core integration tests use a local JDK HTTP server and the actual Feign client; no external service or API key is needed.
 
-Issues and pull requests are welcome. See `AGENTS.md` for repository conventions.
+## Releases and license
 
-## License
+Versions follow semantic versioning after the first stable release. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md). Maven Central staging is prepared through the manual [release workflow](.github/workflows/release.yml) and opt-in `central-publish` Maven profile. It requires Central Portal credentials and GPG signing; staged artifacts still require review and publication in Central Portal. See [RELEASING.md](RELEASING.md).
 
-GPL-3.0. See [LICENSE](LICENSE).
+The repository currently uses GPL-3.0. The license choice has not been changed; review it before adopting or distributing the SDK. See [LICENSE](LICENSE).

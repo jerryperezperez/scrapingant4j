@@ -12,19 +12,21 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(ScrapingAntProperties.class)
 public class ScrapingAntAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean({ScrapingAntClientOptions.class, ScrapingAntClient.class})
-    @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
-    public ScrapingAntClientOptions scrapingAntClientOptions(ScrapingAntProperties properties) {
-        return ScrapingAntClientOptions.builder()
-                .apiKey(properties.getApiKey())
-                .build();
-    }
+  @Bean
+  @ConditionalOnMissingBean({ScrapingAntClientOptions.class, ScrapingAntClient.class})
+  @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
+  public ScrapingAntClientOptions scrapingAntClientOptions(ScrapingAntProperties properties) {
+    return ScrapingAntClientOptions.builder()
+        .apiKey(properties.apiKey())
+        .connectTimeout(properties.getConnectTimeout())
+        .readTimeout(properties.getReadTimeout())
+        .build();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
-    public ScrapingAntClient scrapingAntClient(ScrapingAntClientOptions options) {
-        return new ScrapingAntClient(options);
-    }
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
+  public ScrapingAntClient scrapingAntClient(ScrapingAntClientOptions options) {
+    return new ScrapingAntClient(options);
+  }
 }
