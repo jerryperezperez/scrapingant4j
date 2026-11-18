@@ -8,27 +8,33 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [21, 25]
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 21
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
 
       - name: Cache SonarCloud
-        if: env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: matrix.java == 21 && env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
@@ -38,6 +44,9 @@ jobs:
         run: mvn -B -ntp clean verify
 
       - name: Sonar Analysis
-        if: env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
-        run: mvn -B -ntp sonar:sonar -Dsonar.qualitygate.wait=true
+        if: matrix.java == 21 && env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        run: >
+          mvn -B -ntp sonar:sonar
+          -Dsonar.token="${SONAR_TOKEN}"
+          -Dsonar.qualitygate.wait=true
 
