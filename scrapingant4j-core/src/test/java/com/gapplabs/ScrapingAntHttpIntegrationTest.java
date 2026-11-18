@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -111,21 +112,24 @@ class ScrapingAntHttpIntegrationTest {
   @Test
   void appliesReadTimeoutAndConvertsTransportFailure() throws IOException {
     Duration readTimeout = Duration.ofMillis(50);
+    CountDownLatch releaseResponse = new CountDownLatch(1);
     HttpServer server =
         server(
             exchange -> {
+              try {
+                releaseResponse.await();
+              } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+              }
               respond(exchange, 200, "ok", Map.of());
             });
 
     ScrapingAntClient client = client(server, readTimeout);
     ScrapingAntRequest request = request();
     try {
-
-      
-      
-      
       assertThrows(ScrapingAntNetworkException.class, () -> client.executeGeneral(request));
     } finally {
+      releaseResponse.countDown();
       server.stop(0);
     }
   }
