@@ -44,7 +44,6 @@
         <java.version>21</java.version>
         <maven.min.version>3.9.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.boot.version>3.4.0</spring.boot.version>
         <spring.cloud.version>2025.1.2</spring.cloud.version>
         <spring.boot.version>4.1.2</spring.boot.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
