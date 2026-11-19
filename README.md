@@ -30,7 +30,7 @@ Add one of these dependencies using the version installed locally:
 
 ``` xml
 <dependency>
-    <groupId>com.gapplabs</groupId>
+    <groupId>io.github.jerryperezperez</groupId>
     <artifactId>scrapingant4j-core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
@@ -41,8 +41,8 @@ For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
 ## Quick start: plain Java
 
 ``` java
-import com.gapplabs.scrapingant4j.ScrapingAntClient;
-import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
+import io.github.jerryperezperez.scrapingant4j.ScrapingAntClient;
+import io.github.jerryperezperez.scrapingant4j.dto.ScrapingAntRequest;
 
 String apiKey = System.getenv("SCRAPINGANT_API_KEY");
 ScrapingAntClient client = new ScrapingAntClient(apiKey);
@@ -55,7 +55,7 @@ String html = client.executeGeneral(request);
 
 The client also provides `executeMarkdown`, `executeExtended`, and `executeExtract`. Extract responses can be returned as `Map<String, Object>` or deserialized using a `Class<T>` or Gson `Type` token.
 
-Request options are sent only when set, preserving the API's defaults. URLs must be absolute HTTP or HTTPS URLs with a host. Browser-only fields such as `jsSnippet`, `cssSelector`, and `waitForSelector` require `browser(true)`.
+Request options are sent only when set, preserving the API's defaults. URLs must be absolute HTTP or HTTPS URLs with a host. Browser-only fields (`returnPageSource`, `jsSnippet`, `cssSelector`, `waitForSelector`, `timeout`, and non-empty `blockResources`) are rejected when `browser(false)` is set. Omitting `browser` leaves the API default in place, which enables browser mode. The API base URL is fixed by the SDK and intentionally not configurable; an endpoint change requires an SDK upgrade.
 
 ## Spring Boot example
 
@@ -68,8 +68,8 @@ scrapingant.api-key=${SCRAPINGANT_API_KEY}
 The starter creates a `ScrapingAntClient` bean when `scrapingant.api-key` is configured. A minimal runnable app can use a `CommandLineRunner`:
 
 ``` java
-import com.gapplabs.scrapingant4j.ScrapingAntClient;
-import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
+import io.github.jerryperezperez.scrapingant4j.ScrapingAntClient;
+import io.github.jerryperezperez.scrapingant4j.dto.ScrapingAntRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
