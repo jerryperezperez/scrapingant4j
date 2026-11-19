@@ -1,28 +1,32 @@
 package com.gapplabs.config;
 
+import java.time.Duration;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Configuration properties for the ScrapingAnt SDK when used inside a Spring application.
- * Prefix: scrapingant
+ * Configuration properties for the ScrapingAnt SDK when used inside a Spring application. Prefix:
+ * scrapingant
  */
 @Data
 @ConfigurationProperties(prefix = "scrapingant")
 public class ScrapingAntProperties {
 
-    /**
-     * API key for ScrapingAnt.
-     */
-    private String apiKey;
+  /** API key for ScrapingAnt. */
+  @Getter(AccessLevel.NONE)
+  @ToString.Exclude
+  private String apiKey;
 
-    /**
-     * Base endpoint for the ScrapingAnt API.
-     */
-    private String endpoint = "https://api.scrapingant.com";
+  /** Maximum time to establish a connection. */
+  private Duration connectTimeout = Duration.ofSeconds(5);
 
-    /**
-     * API version used by the client.
-     */
-    private String apiVersion = "v2";
+  /** Maximum time to wait for response data. */
+  private Duration readTimeout = Duration.ofSeconds(60);
+
+  String apiKey() {
+    return apiKey;
+  }
 }
