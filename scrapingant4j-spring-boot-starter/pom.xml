@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.gapplabs</groupId>
+        <groupId>io.github.jerryperezperez</groupId>
         <artifactId>scrapingant4j</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
@@ -30,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.gapplabs</groupId>
+            <groupId>io.github.jerryperezperez</groupId>
             <artifactId>scrapingant4j-core</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -64,7 +64,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.gapplabs.scrapingant4j.springbootstarter</Automatic-Module-Name>
+                            <Automatic-Module-Name>io.github.jerryperezperez.scrapingant4j.springbootstarter</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

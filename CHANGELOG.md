@@ -15,3 +15,5 @@ Notable changes to this project are recorded here. Versions follow semantic vers
 - Fail the build immediately on Checkstyle violations and errors.
 - Resolve `${revision}` in published POMs with the Flatten Maven Plugin.
 - License the project under the Apache License, Version 2.0.
+- Change the Maven group ID and Java packages from `com.gapplabs` to `io.github.jerryperezperez`, including automatic module names and Spring auto-configuration registration.
+- Clarify browser-option validation behavior and document that the ScrapingAnt API base URL is fixed by the SDK.
