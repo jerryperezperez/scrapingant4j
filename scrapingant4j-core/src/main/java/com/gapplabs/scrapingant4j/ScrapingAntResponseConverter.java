@@ -5,6 +5,8 @@ import com.gapplabs.scrapingant4j.dto.responses.ExtendedResponse;
 import com.gapplabs.scrapingant4j.dto.responses.MarkdownResponse;
 import com.gapplabs.scrapingant4j.exceptions.ScrapingAntResponseException;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -12,7 +14,8 @@ import java.util.Map;
 /** Converts raw ScrapingAnt API responses into typed objects. */
 final class ScrapingAntResponseConverter {
 
-  private static final Gson GSON = new Gson();
+  private static final Gson GSON =
+      new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
   private static final Type STRING_OBJECT_MAP = new TypeToken<Map<String, Object>>() {}.getType();
 
   private ScrapingAntResponseConverter() {}
@@ -22,7 +25,7 @@ final class ScrapingAntResponseConverter {
   }
 
   static ExtendedResponse toExtended(String raw) {
-    return deserialize(raw, ExtendedResponse.class, ExtractionType.JSON);
+    return deserialize(raw, ExtendedResponse.class, ExtractionType.EXTENDED);
   }
 
   static Map<String, Object> toExtract(String raw) {

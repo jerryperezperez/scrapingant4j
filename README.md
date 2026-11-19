@@ -16,7 +16,7 @@ The project is not yet published to Maven Central. The current development versi
 | `scrapingant4j-core` | Plain Java client. Does not depend on Spring. |
 | `scrapingant4j-spring-boot-starter` | Spring Boot configuration and auto-configuration for the core client. |
 
-Java 21 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
+Java 17 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
 
 ## Install locally
 
@@ -97,7 +97,7 @@ public class ExampleApplication {
 |---|---|---|---|
 | `scrapingant.api-key` | String | none | Required to auto-configure the client; keep it in an environment variable or secret store. |
 | `scrapingant.connect-timeout` | Duration | `5s` | Positive duration up to the Feign millisecond limit. |
-| `scrapingant.read-timeout` | Duration | `60s` | Positive duration up to the Feign millisecond limit. |
+| `scrapingant.read-timeout` | Duration | `120s` | Positive duration up to the Feign millisecond limit. |
 
 Example overrides:
 
@@ -110,7 +110,7 @@ These settings are also available through `ScrapingAntClientOptions.builder()` i
 
 ## HTTP behavior and errors
 
-Connection and read timeouts default to 5 and 60 seconds. The SDK does not automatically retry failed requests. HTTP errors expose their status code and, for rate limits, a parsed `Retry-After` duration when provided. Callers decide whether to issue another request, taking their own billing and application semantics into account.
+Connection and read timeouts default to 5 and 120 seconds. The SDK does not automatically retry failed requests. HTTP errors expose their status code and, for rate limits, a parsed `Retry-After` duration when provided. Callers decide whether to issue another request, taking their own billing and application semantics into account.
 
 All SDK failures derive from `ScrapingAntException`:
 
@@ -142,7 +142,7 @@ The API key and request cookies/JavaScript are excluded from generated string re
 mvn -B -ntp clean verify
 ```
 
-CI tests Java 21 and 25. Core integration tests use a local JDK HTTP server and the actual Feign client; no external service or API key is needed.
+`verify` also runs Spotless and Checkstyle; run `mvn spotless:apply` before committing. CI tests Java 17 and 21. Core integration tests use a local JDK HTTP server and the actual Feign client; no external service or API key is needed.
 
 ## Releases and license
 

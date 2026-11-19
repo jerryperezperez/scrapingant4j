@@ -27,6 +27,17 @@ class ScrapingAntAutoConfigurationTest {
   }
 
   @Test
+  void testDefaultTimeoutsMatchPlainJavaClient() {
+    contextRunner
+        .withPropertyValues("scrapingant.api-key=test-api-key")
+        .run(context -> {
+          ScrapingAntClientOptions options = context.getBean(ScrapingAntClientOptions.class);
+          assertThat(options.getConnectTimeout()).isEqualTo(java.time.Duration.ofSeconds(5));
+          assertThat(options.getReadTimeout()).isEqualTo(java.time.Duration.ofSeconds(120));
+        });
+  }
+
+  @Test
   void testConfigurationPropertiesAreLoaded() {
     contextRunner
         .withPropertyValues(

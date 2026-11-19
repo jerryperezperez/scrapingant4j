@@ -36,6 +36,42 @@ class ScrapingAntClientTest {
   }
 
   @Test
+  void rejectsNullRequests() {
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeGeneral(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeMarkdown(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtended(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, "title"))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(
+                NullPointerException.class, () -> client.executeExtract(null, List.of("title")))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(
+                NullPointerException.class,
+                () -> client.executeExtract(null, "title", Extracted.class))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(
+                NullPointerException.class,
+                () ->
+                    client.executeExtract(
+                        null, "title", new TypeToken<List<Extracted>>() {}.getType()))
+            .getMessage());
+  }
+
+  @Test
   void testExecuteGeneralTyped() {
     ScrapingAntRequest request = createBasicRequest();
 
@@ -83,11 +119,11 @@ class ScrapingAntClientTest {
     ExtendedResponse result = client.executeExtended(request);
 
     assertEquals(200, result.statusCode());
-    assertEquals("Content-Type", result.headers().getFirst().name());
-    assertEquals(201, result.xhrs().getFirst().status());
-    assertEquals("application/json", result.xhrs().getFirst().headers().getFirst().value());
-    assertEquals("{}", result.xhrs().getFirst().requestBody());
-    assertEquals("https://example.com/frame", result.iframes().getFirst().src());
+    assertEquals("Content-Type", result.headers().get(0).name());
+    assertEquals(201, result.xhrs().get(0).status());
+    assertEquals("application/json", result.xhrs().get(0).headers().get(0).value());
+    assertEquals("{}", result.xhrs().get(0).requestBody());
+    assertEquals("https://example.com/frame", result.iframes().get(0).src());
     assertFalse(result.toString().contains("Content-Type"));
   }
 
@@ -153,7 +189,7 @@ class ScrapingAntClientTest {
         client.executeExtract(
             createBasicRequest(), "title", new TypeToken<List<Extracted>>() {}.getType());
 
-    assertEquals("Example", result.getFirst().title());
+    assertEquals("Example", result.get(0).title());
   }
 
   private ScrapingAntRequest createBasicRequest() {

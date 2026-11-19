@@ -3,10 +3,7 @@ package com.gapplabs.scrapingant4j.constants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Define los tipos de recursos que pueden ser bloqueados durante el renderizado para mejorar la
- * velocidad y reducir el consumo de recursos.
- */
+/** Resource types that can be blocked during rendering to reduce time and resource usage. */
 @Getter
 @RequiredArgsConstructor
 public enum BlockResource {

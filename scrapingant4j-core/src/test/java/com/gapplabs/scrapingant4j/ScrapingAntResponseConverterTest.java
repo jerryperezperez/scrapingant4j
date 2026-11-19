@@ -67,29 +67,30 @@ class ScrapingAntResponseConverterTest {
     assertEquals("hello", result.text());
     assertEquals("a=b", result.cookies());
     assertEquals(200, result.statusCode());
-    assertEquals("Content-Type", result.headers().getFirst().name());
-    assertEquals("text/html", result.headers().getFirst().value());
-    assertEquals("https://example.com/api", result.xhrs().getFirst().url());
-    assertEquals(201, result.xhrs().getFirst().status());
-    assertEquals("POST", result.xhrs().getFirst().method());
-    assertEquals("Accept", result.xhrs().getFirst().headers().getFirst().name());
-    assertEquals("{}", result.xhrs().getFirst().requestBody());
-    assertEquals("{\"ok\":true}", result.xhrs().getFirst().body());
-    assertEquals("https://example.com/frame", result.iframes().getFirst().src());
-    assertEquals("<p>frame</p>", result.iframes().getFirst().html());
+    assertEquals("Content-Type", result.headers().get(0).name());
+    assertEquals("text/html", result.headers().get(0).value());
+    assertEquals("https://example.com/api", result.xhrs().get(0).url());
+    assertEquals(201, result.xhrs().get(0).status());
+    assertEquals("POST", result.xhrs().get(0).method());
+    assertEquals("Accept", result.xhrs().get(0).headers().get(0).name());
+    assertEquals("{}", result.xhrs().get(0).requestBody());
+    assertEquals("{\"ok\":true}", result.xhrs().get(0).body());
+    assertEquals("https://example.com/frame", result.iframes().get(0).src());
+    assertEquals("<p>frame</p>", result.iframes().get(0).html());
   }
 
   @Test
   void toExtractMapsNestedValues() {
     String raw =
         """
-        {"title":"A","price":12.5,"available":true,"tags":["x","y"],"meta":null}
+        {"title":"A","price":12.5,"available":true,"tags":["x","y"],"meta":null,"count":7}
         """;
 
     Map<String, Object> result = ScrapingAntResponseConverter.toExtract(raw);
 
     assertEquals("A", result.get("title"));
     assertEquals(12.5d, (Double) result.get("price"));
+    assertEquals(7L, result.get("count"));
     assertEquals(Boolean.TRUE, result.get("available"));
     assertEquals(List.of("x", "y"), result.get("tags"));
     assertTrue(result.containsKey("meta"));
@@ -110,7 +111,8 @@ class ScrapingAntResponseConverterTest {
   void emptyBodyIsReportedWithExtractionType(String raw) {
     assertEmptyResponse(
         ExtractionType.MARKDOWN, () -> ScrapingAntResponseConverter.toMarkdown(raw));
-    assertEmptyResponse(ExtractionType.JSON, () -> ScrapingAntResponseConverter.toExtended(raw));
+    assertEmptyResponse(
+        ExtractionType.EXTENDED, () -> ScrapingAntResponseConverter.toExtended(raw));
     assertEmptyResponse(
         ExtractionType.AI_EXTRACTED, () -> ScrapingAntResponseConverter.toExtract(raw));
   }
@@ -180,7 +182,7 @@ class ScrapingAntResponseConverterTest {
             ExtractionType.MARKDOWN,
             (Executable) () -> ScrapingAntResponseConverter.toMarkdown("not json")),
         Arguments.of(
-            ExtractionType.JSON,
+            ExtractionType.EXTENDED,
             (Executable) () -> ScrapingAntResponseConverter.toExtended("not json")),
         Arguments.of(
             ExtractionType.AI_EXTRACTED,

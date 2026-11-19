@@ -9,7 +9,6 @@ import feign.Feign;
 import feign.Request;
 import feign.RetryableException;
 import feign.Retryer;
-import feign.slf4j.Slf4jLogger;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
@@ -41,11 +40,13 @@ public class ScrapingAntClient {
 
   /** Sends a general scrape request and returns its response body unchanged. */
   public String executeGeneral(ScrapingAntRequest request) {
+    Objects.requireNonNull(request, "request");
     return call(() -> api.scrape(request.toQueryMap(), ExtractionType.GENERAL.getValue()));
   }
 
   /** Sends a Markdown scrape request and parses the JSON response. */
   public MarkdownResponse executeMarkdown(ScrapingAntRequest request) {
+    Objects.requireNonNull(request, "request");
     String response =
         call(() -> api.scrape(request.toQueryMap(), ExtractionType.MARKDOWN.getValue()));
     return ScrapingAntResponseConverter.toMarkdown(response);
@@ -53,15 +54,15 @@ public class ScrapingAntClient {
 
   /** Sends an extended scrape request and parses its structured response. */
   public ExtendedResponse executeExtended(ScrapingAntRequest request) {
-    String response = call(() -> api.scrape(request.toQueryMap(), ExtractionType.JSON.getValue()));
+    Objects.requireNonNull(request, "request");
+    String response =
+        call(() -> api.scrape(request.toQueryMap(), ExtractionType.EXTENDED.getValue()));
     return ScrapingAntResponseConverter.toExtended(response);
   }
 
   /** Runs AI extraction and returns a dynamic map for the requested properties. */
   public Map<String, Object> executeExtract(ScrapingAntRequest request, String extractProperties) {
-    String normalizedProperties = normalizeExtractProperties(extractProperties);
-    Map<String, Object> query = new HashMap<>(request.toQueryMap());
-    query.put("extract_properties", normalizedProperties);
+    Map<String, Object> query = extractionQuery(request, extractProperties);
     String response = call(() -> api.scrape(query, ExtractionType.AI_EXTRACTED.getValue()));
     return ScrapingAntResponseConverter.toExtract(response);
   }
@@ -69,11 +70,28 @@ public class ScrapingAntClient {
   /** Runs AI extraction using a list of requested properties. */
   public Map<String, Object> executeExtract(
       ScrapingAntRequest request, List<String> extractProperties) {
+    Objects.requireNonNull(request, "request");
     if (extractProperties == null || extractProperties.isEmpty()) {
       throw new IllegalArgumentException(
           "'extractProperties' list is required and cannot be null or empty");
     }
     return executeExtract(request, String.join(", ", extractProperties));
+  }
+
+  /** Executes an extraction and deserializes it into the requested Java type. */
+  public <T> T executeExtract(
+      ScrapingAntRequest request, String extractProperties, Class<T> resultType) {
+    Objects.requireNonNull(resultType, "resultType");
+    return executeExtract(request, extractProperties, (Type) resultType);
+  }
+
+  /** Supports parameterized extraction result types using Gson's {@link Type} tokens. */
+  public <T> T executeExtract(
+      ScrapingAntRequest request, String extractProperties, Type resultType) {
+    Objects.requireNonNull(resultType, "resultType");
+    Map<String, Object> query = extractionQuery(request, extractProperties);
+    String response = call(() -> api.scrape(query, ExtractionType.AI_EXTRACTED.getValue()));
+    return ScrapingAntResponseConverter.toExtract(response, resultType);
   }
 
   private static String normalizeExtractProperties(String raw) {
@@ -88,21 +106,12 @@ public class ScrapingAntClient {
         .collect(Collectors.joining(", "));
   }
 
-  /** Executes an extraction and deserializes it into the requested Java type. */
-  public <T> T executeExtract(
-      ScrapingAntRequest request, String extractProperties, Class<T> resultType) {
-    return executeExtract(request, extractProperties, (Type) resultType);
-  }
-
-  /** Supports parameterized extraction result types using Gson's {@link Type} tokens. */
-  public <T> T executeExtract(
-      ScrapingAntRequest request, String extractProperties, Type resultType) {
-    Objects.requireNonNull(resultType, "resultType");
-    String normalizedProperties = normalizeExtractProperties(extractProperties);
+  private static Map<String, Object> extractionQuery(
+      ScrapingAntRequest request, String extractProperties) {
+    Objects.requireNonNull(request, "request");
     Map<String, Object> query = new HashMap<>(request.toQueryMap());
-    query.put("extract_properties", normalizedProperties);
-    String response = call(() -> api.scrape(query, ExtractionType.AI_EXTRACTED.getValue()));
-    return ScrapingAntResponseConverter.toExtract(response, resultType);
+    query.put("extract_properties", normalizeExtractProperties(extractProperties));
+    return query;
   }
 
   private <T> T call(Supplier<T> request) {
@@ -137,7 +146,6 @@ public class ScrapingAntClient {
                     TimeUnit.MILLISECONDS,
                     true));
     builder
-        .logger(new Slf4jLogger(ScrapingAntClient.class))
         .requestInterceptor(new ScrapingAntAuthInterceptor(options.apiKey()))
         .errorDecoder(new ScrapingAntErrorDecoder());
     return builder.target(ScrapingAntApi.class, baseUrl);

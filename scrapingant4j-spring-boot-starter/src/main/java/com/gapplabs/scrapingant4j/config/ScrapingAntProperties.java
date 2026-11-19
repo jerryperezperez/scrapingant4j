@@ -24,7 +24,7 @@ public class ScrapingAntProperties {
   private Duration connectTimeout = Duration.ofSeconds(5);
 
   /** Maximum time to wait for response data. */
-  private Duration readTimeout = Duration.ofSeconds(60);
+  private Duration readTimeout = Duration.ofSeconds(120);
 
   String apiKey() {
     return apiKey;

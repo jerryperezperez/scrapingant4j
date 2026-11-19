@@ -3,6 +3,7 @@ package com.gapplabs.scrapingant4j.dto.responses;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+/** Extended scrape response with rendered content and browser metadata. */
 public record ExtendedResponse(
     String html,
     String text,
@@ -33,8 +34,10 @@ public record ExtendedResponse(
     return values == null ? 0 : values.size();
   }
 
+  /** HTTP header name/value pair. */
   public record Header(String name, String value) {}
 
+  /** XMLHttpRequest observed during rendering. */
   public record XhrResponse(
       String url,
       Integer status,
@@ -43,5 +46,6 @@ public record ExtendedResponse(
       @SerializedName("request_body") String requestBody,
       String body) {}
 
+  /** Iframe observed during rendering. */
   public record IframeResponse(String src, String html) {}
 }
