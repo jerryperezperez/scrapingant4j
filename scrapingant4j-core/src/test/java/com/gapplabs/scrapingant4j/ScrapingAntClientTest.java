@@ -13,7 +13,6 @@ import com.gapplabs.scrapingant4j.dto.responses.ExtendedResponse;
 import com.gapplabs.scrapingant4j.dto.responses.MarkdownResponse;
 import com.gapplabs.scrapingant4j.exceptions.ScrapingAntResponseException;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,7 @@ class ScrapingAntClientTest {
   @Test
   void rejectsNullRequests() {
     List<String> stringList = List.of("title");
-    Type type = new TypeToken<List<Extracted>>() {
-    }.getType();
+    Type type = new TypeToken<List<Extracted>>() {}.getType();
     assertEquals(
         "request",
         assertThrows(NullPointerException.class, () -> client.executeGeneral(null)).getMessage());
@@ -57,8 +55,7 @@ class ScrapingAntClientTest {
             .getMessage());
     assertEquals(
         "request",
-        assertThrows(
-                NullPointerException.class, () -> client.executeExtract(null, stringList))
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, stringList))
             .getMessage());
     assertEquals(
         "request",
@@ -68,11 +65,7 @@ class ScrapingAntClientTest {
             .getMessage());
     assertEquals(
         "request",
-        assertThrows(
-                NullPointerException.class,
-                () ->
-                    client.executeExtract(
-                        null, "title", type))
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, "title", type))
             .getMessage());
   }
 
