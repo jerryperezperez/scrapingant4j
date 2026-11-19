@@ -41,8 +41,8 @@ For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
 ## Quick start: plain Java
 
 ```java
-import com.gapplabs.ScrapingAntClient;
-import com.gapplabs.dto.ScrapingAntRequest;
+import com.gapplabs.scrapingant4j.ScrapingAntClient;
+import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 
 String apiKey = System.getenv("SCRAPINGANT_API_KEY");
 ScrapingAntClient client = new ScrapingAntClient(apiKey);
@@ -68,8 +68,8 @@ scrapingant.api-key=${SCRAPINGANT_API_KEY}
 The starter creates a `ScrapingAntClient` bean when `scrapingant.api-key` is configured. A minimal runnable app can use a `CommandLineRunner`:
 
 ```java
-import com.gapplabs.ScrapingAntClient;
-import com.gapplabs.dto.ScrapingAntRequest;
+import com.gapplabs.scrapingant4j.ScrapingAntClient;
+import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

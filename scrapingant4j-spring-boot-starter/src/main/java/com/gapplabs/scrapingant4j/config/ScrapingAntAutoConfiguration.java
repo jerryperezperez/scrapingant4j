@@ -1,0 +1,32 @@
+package com.gapplabs.scrapingant4j.config;
+
+import com.gapplabs.scrapingant4j.ScrapingAntClient;
+import com.gapplabs.scrapingant4j.ScrapingAntClientOptions;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+
+@AutoConfiguration
+@EnableConfigurationProperties(ScrapingAntProperties.class)
+public class ScrapingAntAutoConfiguration {
+
+  @Bean
+  @ConditionalOnMissingBean({ScrapingAntClientOptions.class, ScrapingAntClient.class})
+  @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
+  public ScrapingAntClientOptions scrapingAntClientOptions(ScrapingAntProperties properties) {
+    return ScrapingAntClientOptions.builder()
+        .apiKey(properties.apiKey())
+        .connectTimeout(properties.getConnectTimeout())
+        .readTimeout(properties.getReadTimeout())
+        .build();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty(prefix = "scrapingant", name = "api-key")
+  public ScrapingAntClient scrapingAntClient(ScrapingAntClientOptions options) {
+    return new ScrapingAntClient(options);
+  }
+}
