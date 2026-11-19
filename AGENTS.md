@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Java 21 Maven multi-module SDK for the ScrapingAnt API. Core uses Feign and Gson. The parent POM manages shared dependency versions, including the Spring Boot BOM.
+Java 17 Maven multi-module SDK for the ScrapingAnt API. Core uses Feign and Gson. The parent POM manages shared dependency versions; the Spring Boot starter imports the Spring Boot BOM.
 
 ## Modules
 
@@ -24,7 +24,7 @@ endpoint names, query parameter names, omitted-option behavior (only explicitly 
 - Prefer not to expose Feign types in new public API.
 - Every new request option needs validation, a `toQueryMap()` mapping, and tests.
 - Use the existing Lombok, Gson and Google Java Format conventions; do not add parallel tooling.
-- Spotless and Checkstyle are configured but not yet bound to the build. Run `mvn spotless:apply` before committing, and do not assume `verify` checks style.
+- Spotless and Checkstyle are bound to `verify`. Run `mvn spotless:apply` before committing.
 
 ## Testing
 

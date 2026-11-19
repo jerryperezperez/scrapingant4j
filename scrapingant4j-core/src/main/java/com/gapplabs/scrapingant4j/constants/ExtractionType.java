@@ -3,6 +3,7 @@ package com.gapplabs.scrapingant4j.constants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/** Extraction endpoints supported by the ScrapingAnt API. */
 @Getter
 @RequiredArgsConstructor
 public enum ExtractionType {

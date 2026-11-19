@@ -13,6 +13,7 @@ import com.gapplabs.scrapingant4j.dto.responses.ExtendedResponse;
 import com.gapplabs.scrapingant4j.dto.responses.MarkdownResponse;
 import com.gapplabs.scrapingant4j.exceptions.ScrapingAntResponseException;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,39 @@ class ScrapingAntClientTest {
     ScrapingAntClientOptions options =
         ScrapingAntClientOptions.builder().apiKey("test-api-key").build();
     client = new ScrapingAntClient(options, mockApi);
+  }
+
+  @Test
+  void rejectsNullRequests() {
+    List<String> stringList = List.of("title");
+    Type type = new TypeToken<List<Extracted>>() {}.getType();
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeGeneral(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeMarkdown(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtended(null)).getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, "title"))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, stringList))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(
+                NullPointerException.class,
+                () -> client.executeExtract(null, "title", Extracted.class))
+            .getMessage());
+    assertEquals(
+        "request",
+        assertThrows(NullPointerException.class, () -> client.executeExtract(null, "title", type))
+            .getMessage());
   }
 
   @Test
@@ -83,11 +117,11 @@ class ScrapingAntClientTest {
     ExtendedResponse result = client.executeExtended(request);
 
     assertEquals(200, result.statusCode());
-    assertEquals("Content-Type", result.headers().getFirst().name());
-    assertEquals(201, result.xhrs().getFirst().status());
-    assertEquals("application/json", result.xhrs().getFirst().headers().getFirst().value());
-    assertEquals("{}", result.xhrs().getFirst().requestBody());
-    assertEquals("https://example.com/frame", result.iframes().getFirst().src());
+    assertEquals("Content-Type", result.headers().get(0).name());
+    assertEquals(201, result.xhrs().get(0).status());
+    assertEquals("application/json", result.xhrs().get(0).headers().get(0).value());
+    assertEquals("{}", result.xhrs().get(0).requestBody());
+    assertEquals("https://example.com/frame", result.iframes().get(0).src());
     assertFalse(result.toString().contains("Content-Type"));
   }
 
@@ -153,7 +187,7 @@ class ScrapingAntClientTest {
         client.executeExtract(
             createBasicRequest(), "title", new TypeToken<List<Extracted>>() {}.getType());
 
-    assertEquals("Example", result.getFirst().title());
+    assertEquals("Example", result.get(0).title());
   }
 
   private ScrapingAntRequest createBasicRequest() {

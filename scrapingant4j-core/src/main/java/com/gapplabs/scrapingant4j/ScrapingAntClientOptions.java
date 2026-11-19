@@ -10,7 +10,7 @@ public final class ScrapingAntClientOptions {
   public static final String DEFAULT_BASE_URL = "https://api.scrapingant.com/v2";
 
   private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(5);
-  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(120);
   private static final Duration MIN_TIMEOUT = Duration.ofMillis(1);
   private static final Duration MAX_TIMEOUT = Duration.ofMillis(Integer.MAX_VALUE);
 

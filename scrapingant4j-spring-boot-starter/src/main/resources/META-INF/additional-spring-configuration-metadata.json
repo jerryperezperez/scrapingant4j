@@ -15,7 +15,7 @@
       "name": "scrapingant.read-timeout",
       "type": "java.time.Duration",
       "description": "Maximum time to wait for response data.",
-      "defaultValue": "60s"
+      "defaultValue": "120s"
     }
   ]
 }

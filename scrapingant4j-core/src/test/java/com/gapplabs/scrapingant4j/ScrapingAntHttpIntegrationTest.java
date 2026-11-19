@@ -27,25 +27,26 @@ class ScrapingAntHttpIntegrationTest {
   void sendsAuthenticatedGetWithEncodedQueryAndMapsResponse() throws IOException {
     AtomicInteger status = new AtomicInteger(200);
     HttpServer server =
-        server(exchange -> {
-          assertEquals("GET", exchange.getRequestMethod());
-          assertEquals("/v2/general", exchange.getRequestURI().getPath());
-          assertEquals("integration-key", exchange.getRequestHeaders().getFirst("x-api-key"));
-          assertNull(exchange.getRequestHeaders().getFirst("Content-Type"));
-          Map<String, String> query =
-              Arrays.stream(exchange.getRequestURI().getRawQuery().split("&"))
-                  .map(part -> part.split("=", 2))
-                  .collect(
-                      Collectors.toMap(
-                          pair -> decode(pair[0]),
-                          pair -> decode(pair.length == 2 ? pair[1] : "")));
-          assertEquals("https://example.com/a%20b", query.get("url"));
-          assertEquals("YQ==", query.get("js_snippet"));
-          assertEquals("#main area", query.get("css_selector"));
-          assertEquals("true", query.get("browser"));
-          assertFalse(query.containsKey("proxy_type"));
-          respond(exchange, status.get(), "<html>ok</html>", Map.of());
-        });
+        server(
+            exchange -> {
+              assertEquals("GET", exchange.getRequestMethod());
+              assertEquals("/v2/general", exchange.getRequestURI().getPath());
+              assertEquals("integration-key", exchange.getRequestHeaders().getFirst("x-api-key"));
+              assertNull(exchange.getRequestHeaders().getFirst("Content-Type"));
+              Map<String, String> query =
+                  Arrays.stream(exchange.getRequestURI().getRawQuery().split("&"))
+                      .map(part -> part.split("=", 2))
+                      .collect(
+                          Collectors.toMap(
+                              pair -> decode(pair[0]),
+                              pair -> decode(pair.length == 2 ? pair[1] : "")));
+              assertEquals("https://example.com/a%20b", query.get("url"));
+              assertEquals("YQ==", query.get("js_snippet"));
+              assertEquals("#main area", query.get("css_selector"));
+              assertEquals("true", query.get("browser"));
+              assertFalse(query.containsKey("proxy_type"));
+              respond(exchange, status.get(), "<html>ok</html>", Map.of());
+            });
     try {
       ScrapingAntClient client = client(server, Duration.ofSeconds(1));
       ScrapingAntRequest request =
@@ -64,8 +65,9 @@ class ScrapingAntHttpIntegrationTest {
   @Test
   void mapsHttpErrorsAndRetryAfterThroughRealFeignClient() throws IOException {
     HttpServer server =
-        server(exchange ->
-            respond(exchange, 429, "{\"detail\":\"slow down\"}", Map.of("Retry-After", "120")));
+        server(
+            exchange ->
+                respond(exchange, 429, "{\"detail\":\"slow down\"}", Map.of("Retry-After", "120")));
 
     ScrapingAntClient client = client(server, Duration.ofSeconds(1));
     ScrapingAntRequest request = request();
@@ -84,10 +86,11 @@ class ScrapingAntHttpIntegrationTest {
   void returnsServerErrorWithoutRetrying() throws IOException {
     AtomicInteger attempts = new AtomicInteger();
     HttpServer server =
-        server(exchange -> {
-          attempts.incrementAndGet();
-          respond(exchange, 503, "busy", Map.of());
-        });
+        server(
+            exchange -> {
+              attempts.incrementAndGet();
+              respond(exchange, 503, "busy", Map.of());
+            });
 
     ScrapingAntClient client = client(server, Duration.ofSeconds(1));
     ScrapingAntRequest request = request();
@@ -107,14 +110,15 @@ class ScrapingAntHttpIntegrationTest {
     Duration readTimeout = Duration.ofMillis(500);
     CountDownLatch releaseResponse = new CountDownLatch(1);
     HttpServer server =
-        server(exchange -> {
-          try {
-            releaseResponse.await();
-          } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-          }
-          respond(exchange, 200, "ok", Map.of());
-        });
+        server(
+            exchange -> {
+              try {
+                releaseResponse.await();
+              } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+              }
+              respond(exchange, 200, "ok", Map.of());
+            });
 
     ScrapingAntClient client = client(server, readTimeout);
     ScrapingAntRequest request = request();

@@ -1,5 +1,6 @@
 package com.gapplabs.scrapingant4j.constants;
 
+/** Query-parameter names used by scrape requests. */
 public class ScrapingAntRequestConstants {
 
   public static final String URL = "url";

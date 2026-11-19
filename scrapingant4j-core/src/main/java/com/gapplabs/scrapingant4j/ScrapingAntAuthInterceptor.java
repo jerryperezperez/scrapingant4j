@@ -3,17 +3,16 @@ package com.gapplabs.scrapingant4j;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
-public class ScrapingAntAuthInterceptor implements RequestInterceptor {
-  public static final String API_KEY_HEADER = "x-api-key";
+final class ScrapingAntAuthInterceptor implements RequestInterceptor {
+  static final String API_KEY_HEADER = "x-api-key";
   private final String apiKey;
 
-  public ScrapingAntAuthInterceptor(String apiKey) {
+  ScrapingAntAuthInterceptor(String apiKey) {
     this.apiKey = apiKey;
   }
 
   @Override
   public void apply(RequestTemplate template) {
-    // Inyecta la llave en el header según la documentación
     template.header(API_KEY_HEADER, apiKey);
   }
 }

@@ -7,7 +7,7 @@ An unofficial Java SDK for the [ScrapingAnt API](https://scrapingant.com). The S
 
 ## Project status
 
-The project is not yet published to Maven Central. The current development version is `1.0.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
+The project is not yet published to Maven Central. The current development version is `0.1.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
 
 ## Modules and requirements
 
@@ -16,23 +16,23 @@ The project is not yet published to Maven Central. The current development versi
 | `scrapingant4j-core` | Plain Java client. Does not depend on Spring. |
 | `scrapingant4j-spring-boot-starter` | Spring Boot configuration and auto-configuration for the core client. |
 
-Java 21 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
+Java 17 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
 
 ## Install locally
 
 Until the first stable Central release, build and install both modules from a checkout:
 
-```shell
+``` shell
 mvn -B -ntp clean install
 ```
 
 Add one of these dependencies using the version installed locally:
 
-```xml
+``` xml
 <dependency>
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j-core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -40,7 +40,7 @@ For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
 
 ## Quick start: plain Java
 
-```java
+``` java
 import com.gapplabs.scrapingant4j.ScrapingAntClient;
 import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 
@@ -61,13 +61,13 @@ Request options are sent only when set, preserving the API's defaults. URLs must
 
 Add the starter dependency, then configure the key through an environment variable:
 
-```properties
+``` properties
 scrapingant.api-key=${SCRAPINGANT_API_KEY}
 ```
 
 The starter creates a `ScrapingAntClient` bean when `scrapingant.api-key` is configured. A minimal runnable app can use a `CommandLineRunner`:
 
-```java
+``` java
 import com.gapplabs.scrapingant4j.ScrapingAntClient;
 import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 import org.springframework.boot.CommandLineRunner;
@@ -97,7 +97,7 @@ public class ExampleApplication {
 |---|---|---|---|
 | `scrapingant.api-key` | String | none | Required to auto-configure the client; keep it in an environment variable or secret store. |
 | `scrapingant.connect-timeout` | Duration | `5s` | Positive duration up to the Feign millisecond limit. |
-| `scrapingant.read-timeout` | Duration | `60s` | Positive duration up to the Feign millisecond limit. |
+| `scrapingant.read-timeout` | Duration | `120s` | Positive duration up to the Feign millisecond limit. |
 
 Example overrides:
 
@@ -110,7 +110,7 @@ These settings are also available through `ScrapingAntClientOptions.builder()` i
 
 ## HTTP behavior and errors
 
-Connection and read timeouts default to 5 and 60 seconds. The SDK does not automatically retry failed requests. HTTP errors expose their status code and, for rate limits, a parsed `Retry-After` duration when provided. Callers decide whether to issue another request, taking their own billing and application semantics into account.
+Connection and read timeouts default to 5 and 120 seconds. The SDK does not automatically retry failed requests. HTTP errors expose their status code and, for rate limits, a parsed `Retry-After` duration when provided. Callers decide whether to issue another request, taking their own billing and application semantics into account.
 
 All SDK failures derive from `ScrapingAntException`:
 
@@ -122,7 +122,7 @@ All SDK failures derive from `ScrapingAntException`:
 
 `Retry-After` accepts seconds or an RFC 1123 date. Invalid or missing values produce `null`. `executeGeneral` returns the response body as-is, including an empty body. Typed JSON operations reject empty bodies and JSON `null` with `ScrapingAntResponseException`.
 
-```java
+``` java
 try {
     client.executeGeneral(request);
 } catch (ScrapingAntHttpException e) {
@@ -138,14 +138,14 @@ The API key and request cookies/JavaScript are excluded from generated string re
 
 ## Build and test
 
-```shell
+``` shell
 mvn -B -ntp clean verify
 ```
 
-CI tests Java 21 and 25. Core integration tests use a local JDK HTTP server and the actual Feign client; no external service or API key is needed.
+`verify` also runs Spotless and Checkstyle; run `mvn spotless:apply` before committing. CI tests Java 17 and 21. Core integration tests use a local JDK HTTP server and the actual Feign client; no external service or API key is needed.
 
 ## Releases and license
 
 Versions follow semantic versioning after the first stable release. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md). Maven Central staging is prepared through the manual [release workflow](.github/workflows/release.yml) and opt-in `central-publish` Maven profile. It requires Central Portal credentials and GPG signing; staged artifacts still require review and publication in Central Portal. See [RELEASING.md](RELEASING.md).
 
-The repository currently uses GPL-3.0. The license choice has not been changed; review it before adopting or distributing the SDK. See [LICENSE](LICENSE).
+The project is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

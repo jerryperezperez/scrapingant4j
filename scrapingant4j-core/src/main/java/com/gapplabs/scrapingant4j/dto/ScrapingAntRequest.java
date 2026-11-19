@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+/** Validated scrape request and its query-parameter mapping. */
 @Getter
 @Builder
 @ToString
@@ -31,8 +32,10 @@ public class ScrapingAntRequest {
   private final List<BlockResource> blockResources;
   private final Integer timeout;
 
+  /** Builder that validates inputs before creating a request. */
   @SuppressWarnings("unused")
   public static class ScrapingAntRequestBuilder {
+    /** Validates inputs and creates the request. */
     public ScrapingAntRequest build() {
       validateUrl();
       validateBrowserOnlyOptions();

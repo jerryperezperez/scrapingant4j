@@ -3,10 +3,7 @@ package com.gapplabs.scrapingant4j.constants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Representa los países disponibles para la geolocalización de proxies en ScrapingAnt. Referencia:
- * https://docs.scrapingant.com/proxy-settings
- */
+/** Countries available for proxy geolocation in ScrapingAnt. */
 @Getter
 @RequiredArgsConstructor
 public enum ProxyCountry {

@@ -11,7 +11,7 @@ class ScrapingAntClientOptionsTest {
   void usesDocumentedDefaultsWithoutExposingTheApiKey() {
     ScrapingAntClientOptions options = ScrapingAntClientOptions.builder().apiKey("secret").build();
     assertEquals(Duration.ofSeconds(5), options.getConnectTimeout());
-    assertEquals(Duration.ofSeconds(60), options.getReadTimeout());
+    assertEquals(Duration.ofSeconds(120), options.getReadTimeout());
     org.junit.jupiter.api.Assertions.assertFalse(options.toString().contains("secret"));
     org.junit.jupiter.api.Assertions.assertFalse(
         ScrapingAntClientOptions.builder().apiKey("secret").toString().contains("secret"));
