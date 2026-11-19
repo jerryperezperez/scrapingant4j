@@ -32,9 +32,9 @@ class ScrapingAntErrorDecoder implements ErrorDecoder {
     String detail = extractDetail(response);
     String message = detail == null ? "HTTP " + status : detail;
     if (status == 429) {
-      return new ScrapingAntHttpException(status, message, parseRetryAfter(response));
+      return new ScrapingAntHttpException(status, message, parseRetryAfter(response), detail);
     }
-    return new ScrapingAntHttpException(status, message);
+    return new ScrapingAntHttpException(status, message, null, detail);
   }
 
   private Duration parseRetryAfter(Response response) {

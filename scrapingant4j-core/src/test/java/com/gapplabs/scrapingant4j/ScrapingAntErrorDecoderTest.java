@@ -1,9 +1,12 @@
 package com.gapplabs.scrapingant4j;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.gapplabs.scrapingant4j.exceptions.ScrapingAntErrorType;
 import com.gapplabs.scrapingant4j.exceptions.ScrapingAntException;
 import com.gapplabs.scrapingant4j.exceptions.ScrapingAntHttpException;
 import feign.Request;
@@ -69,6 +72,51 @@ class ScrapingAntErrorDecoderTest {
     assertEquals("Bad request detail", ex.getMessage());
   }
 
+  @Test
+  void decodeExposesDetailAndClassifiesInvalidApiKey() {
+    Response resp = buildResponse(401, null, "{\"detail\":\"Invalid API key\"}");
+
+    ScrapingAntHttpException exception =
+        assertInstanceOf(ScrapingAntHttpException.class, decoder.decode("m", resp));
+
+    assertEquals("Invalid API key", exception.getDetail());
+    assertEquals(ScrapingAntErrorType.INVALID_API_KEY, exception.getErrorType());
+    assertFalse(exception.isRetryable());
+  }
+
+  @Test
+  void decodeClassifiesCreditsAndTimeoutDetails() {
+    ScrapingAntHttpException credits =
+        (ScrapingAntHttpException)
+            decoder.decode("m", buildResponse(400, null, "{\"detail\":\"No credits left\"}"));
+    ScrapingAntHttpException timeout =
+        (ScrapingAntHttpException)
+            decoder.decode("m", buildResponse(400, null, "{\"detail\":\"Target timeout\"}"));
+
+    assertEquals(ScrapingAntErrorType.INSUFFICIENT_CREDITS, credits.getErrorType());
+    assertEquals(ScrapingAntErrorType.TARGET_TIMEOUT, timeout.getErrorType());
+    assertTrue(timeout.isRetryable());
+  }
+
+  @Test
+  void decodeWithoutDetailHasNullDetailAndUnknownType() {
+    ScrapingAntHttpException exception =
+        (ScrapingAntHttpException) decoder.decode("m", buildResponse(400, null, null));
+
+    assertNull(exception.getDetail());
+    assertEquals(ScrapingAntErrorType.UNKNOWN, exception.getErrorType());
+    assertFalse(exception.isRetryable());
+  }
+
+  @Test
+  void decodeServerErrorIsRetryable() {
+    ScrapingAntHttpException exception =
+        (ScrapingAntHttpException) decoder.decode("m", buildResponse(500, null, null));
+
+    assertEquals(ScrapingAntErrorType.SERVER_ERROR, exception.getErrorType());
+    assertTrue(exception.isRetryable());
+  }
+
   @ParameterizedTest
   @MethodSource("fallbackMessageCases")
   void decodeWithoutUsableDetailUsesFallbackMessage(
@@ -91,8 +139,10 @@ class ScrapingAntErrorDecoderTest {
     assertInstanceOf(ScrapingAntHttpException.class, ex);
     ScrapingAntHttpException rateLimitException = (ScrapingAntHttpException) ex;
     assertEquals("Slow down", rateLimitException.getMessage());
-    assertEquals(
-        java.time.Duration.ofSeconds(120), ((ScrapingAntHttpException) ex).getRetryAfter());
+    assertEquals("Slow down", rateLimitException.getDetail());
+    assertEquals(ScrapingAntErrorType.RATE_LIMITED, rateLimitException.getErrorType());
+    assertTrue(rateLimitException.isRetryable());
+    assertEquals(java.time.Duration.ofSeconds(120), rateLimitException.getRetryAfter());
   }
 
   @Test

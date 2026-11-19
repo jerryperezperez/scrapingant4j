@@ -116,11 +116,11 @@ All SDK failures derive from `ScrapingAntException`:
 
 | Exception | Meaning | Metadata |
 |---|---|---|
-| `ScrapingAntHttpException` | Non-success HTTP response | `getStatusCode()`, optional `getRetryAfter()` duration |
+| `ScrapingAntHttpException` | Non-success HTTP response | `getStatusCode()`, optional `getRetryAfter()` duration, optional `getDetail()`, `getErrorType()`, `isRetryable()` |
 | `ScrapingAntNetworkException` | Transport failure without a usable response | Original cause |
 | `ScrapingAntResponseException` | Empty, JSON null, or malformed typed response | Original cause for parse failures |
 
-`Retry-After` accepts seconds or an RFC 1123 date. Invalid or missing values produce `null`. `executeGeneral` returns the response body as-is, including an empty body. Typed JSON operations reject empty bodies and JSON `null` with `ScrapingAntResponseException`.
+`Retry-After` accepts seconds or an RFC 1123 date. Invalid or missing values produce `null`. `getErrorType()` classifies the failure as `INVALID_API_KEY`, `INSUFFICIENT_CREDITS`, `TARGET_TIMEOUT`, `RATE_LIMITED`, `SERVER_ERROR`, or `UNKNOWN`, using the API detail when available and the status code as a fallback. `isRetryable()` is `true` for `TARGET_TIMEOUT`, `RATE_LIMITED`, and `SERVER_ERROR`; callers still decide whether to retry. `executeGeneral` returns the response body as-is, including an empty body. Typed JSON operations reject empty bodies and JSON `null` with `ScrapingAntResponseException`.
 
 ```java
 try {
