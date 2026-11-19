@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public enum ExtractionType {
   GENERAL("general"),
   MARKDOWN("markdown"),
-  EXTENDED("extended"),
+  JSON("extended"),
   AI_EXTRACTED("extract");
 
   private final String value;

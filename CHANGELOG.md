@@ -10,4 +10,4 @@ Notable changes to this project are recorded here. Versions follow semantic vers
 - Add real HTTP-boundary tests, Java 17/21 CI coverage, Spring configuration documentation, and source/Javadoc artifacts.
 - Prepare an opt-in Maven Central publishing profile. No release has been published.
 - Lower the Java baseline to 17, bind Spotless and Checkstyle to `verify`, enable Javadoc doclint checks (excluding missing-tag warnings), and remove hardcoded versions from active build plugins.
-- Increase the default read timeout to 120 seconds, rename `ProxyType.STANDARD` to `DATACENTER` and `ExtractionType.JSON` to `EXTENDED`, preserve integral extract numbers as `Long`, and drop the unused Feign SLF4J logger.
+- Increase the default read timeout to 120 seconds, preserve integral extract numbers as `Long`, and drop the unused Feign SLF4J logger.

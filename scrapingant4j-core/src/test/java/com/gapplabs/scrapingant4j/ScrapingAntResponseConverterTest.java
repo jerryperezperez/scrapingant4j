@@ -111,8 +111,7 @@ class ScrapingAntResponseConverterTest {
   void emptyBodyIsReportedWithExtractionType(String raw) {
     assertEmptyResponse(
         ExtractionType.MARKDOWN, () -> ScrapingAntResponseConverter.toMarkdown(raw));
-    assertEmptyResponse(
-        ExtractionType.EXTENDED, () -> ScrapingAntResponseConverter.toExtended(raw));
+    assertEmptyResponse(ExtractionType.JSON, () -> ScrapingAntResponseConverter.toExtended(raw));
     assertEmptyResponse(
         ExtractionType.AI_EXTRACTED, () -> ScrapingAntResponseConverter.toExtract(raw));
   }
@@ -182,7 +181,7 @@ class ScrapingAntResponseConverterTest {
             ExtractionType.MARKDOWN,
             (Executable) () -> ScrapingAntResponseConverter.toMarkdown("not json")),
         Arguments.of(
-            ExtractionType.EXTENDED,
+            ExtractionType.JSON,
             (Executable) () -> ScrapingAntResponseConverter.toExtended("not json")),
         Arguments.of(
             ExtractionType.AI_EXTRACTED,

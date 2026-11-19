@@ -55,8 +55,7 @@ public class ScrapingAntClient {
   /** Sends an extended scrape request and parses its structured response. */
   public ExtendedResponse executeExtended(ScrapingAntRequest request) {
     Objects.requireNonNull(request, "request");
-    String response =
-        call(() -> api.scrape(request.toQueryMap(), ExtractionType.EXTENDED.getValue()));
+    String response = call(() -> api.scrape(request.toQueryMap(), ExtractionType.JSON.getValue()));
     return ScrapingAntResponseConverter.toExtended(response);
   }
 

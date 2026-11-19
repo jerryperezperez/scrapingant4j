@@ -17,7 +17,7 @@ class ProxyTypeTest {
   @Test
   void testSpecificValues() {
     assertThat(ProxyType.RESIDENTIAL.getValue()).isEqualTo("residential");
-    assertThat(ProxyType.DATACENTER.getValue()).isEqualTo("datacenter");
+    assertThat(ProxyType.STANDARD.getValue()).isEqualTo("datacenter");
   }
 
   @Test

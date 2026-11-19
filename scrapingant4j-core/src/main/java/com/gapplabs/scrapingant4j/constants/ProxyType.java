@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ProxyType {
   RESIDENTIAL("residential"),
-  DATACENTER("datacenter");
+  STANDARD("datacenter");
 
   private final String value;
 }

@@ -25,7 +25,7 @@ final class ScrapingAntResponseConverter {
   }
 
   static ExtendedResponse toExtended(String raw) {
-    return deserialize(raw, ExtendedResponse.class, ExtractionType.EXTENDED);
+    return deserialize(raw, ExtendedResponse.class, ExtractionType.JSON);
   }
 
   static Map<String, Object> toExtract(String raw) {
