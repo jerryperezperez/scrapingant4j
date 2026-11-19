@@ -60,6 +60,7 @@
         <sonar.maven.plugin.version>5.7.0.6970</sonar.maven.plugin.version>
         <jacoco.maven.plugin.version>0.8.14</jacoco.maven.plugin.version>
         <spotless.maven.plugin.version>3.11.0</spotless.maven.plugin.version>
+        <google.java.format.version>1.28.0</google.java.format.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <sonar.projectKey>jerryperezperez_scrapingant4j</sonar.projectKey>
         <sonar.organization>gapp-labs</sonar.organization>
@@ -188,7 +189,9 @@
                     <version>${spotless.maven.plugin.version}</version>
                     <configuration>
                         <java>
-                            <googleJavaFormat/>
+                            <googleJavaFormat>
+                                <version>${google.java.format.version}</version>
+                            </googleJavaFormat>
                         </java>
                     </configuration>
                     <executions>
@@ -208,7 +211,7 @@
                     <configuration>
                         <configLocation>google_checks.xml</configLocation>
                         <consoleOutput>true</consoleOutput>
-                        <failsOnError>false</failsOnError>
+                        <failsOnError>true</failsOnError>
                         <violationSeverity>warning</violationSeverity>
                     </configuration>
                     <executions>
