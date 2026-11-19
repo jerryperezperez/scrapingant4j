@@ -148,4 +148,4 @@ mvn -B -ntp clean verify
 
 Versions follow semantic versioning after the first stable release. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md). Maven Central staging is prepared through the manual [release workflow](.github/workflows/release.yml) and opt-in `central-publish` Maven profile. It requires Central Portal credentials and GPG signing; staged artifacts still require review and publication in Central Portal. See [RELEASING.md](RELEASING.md).
 
-The repository currently uses GPL-3.0. The license choice has not been changed; review it before adopting or distributing the SDK. See [LICENSE](LICENSE).
+The project is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).

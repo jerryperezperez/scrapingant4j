@@ -1,6 +1,6 @@
 # Release procedure
 
-The first stable release should be cut only after API and license review. The project currently remains `0.1.0-SNAPSHOT`; there are no published releases.
+The first stable release should be cut only after API review. The project currently remains `0.1.0-SNAPSHOT`; there are no published releases.
 
 ## Prepare a release
 
@@ -12,4 +12,4 @@ The first stable release should be cut only after API and license review. The pr
 
 The workflow is manual so a tag or ordinary build cannot publish artifacts automatically. Do not put credentials or signing keys in the repository, Maven POM, or workflow logs.
 
-The repository license is GPL-3.0. Confirm the project's intended reuse terms before its first public release; this repository change does not make that legal decision.
+The repository is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
