@@ -13,3 +13,4 @@ Notable changes to this project are recorded here. Versions follow semantic vers
 - Increase the default read timeout to 120 seconds, preserve integral extract numbers as `Long`, and drop the unused Feign SLF4J logger.
 - Pin Google Java Format to 1.28.0 so Spotless output is identical on JDK 17 and newer.
 - Fail the build immediately on Checkstyle violations and errors.
+- Resolve `${revision}` in published POMs with the Flatten Maven Plugin.
