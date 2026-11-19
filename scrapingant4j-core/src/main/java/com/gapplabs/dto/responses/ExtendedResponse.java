@@ -1,18 +1,47 @@
 package com.gapplabs.dto.responses;
 
 import com.google.gson.annotations.SerializedName;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public record ExtendedResponse(
-        String html,
-        String text,
-        String cookies,
-        @SerializedName("status_code") int statusCode,  // only this one needs it
-       // TODO: Convert `headers` field in `ExtendedResponse` from `List<Map<String, String>>` to `Map<String, String>` during deserialization
-        List<Map<String, String>> headers,
-        List<HashMap<String, String>> xhrs,
-        List<HashMap<String, String>> iframes
-) {}
+    String html,
+    String text,
+    String cookies,
+    @SerializedName("status_code") int statusCode,
+    List<Header> headers,
+    List<XhrResponse> xhrs,
+    List<IframeResponse> iframes) {
+
+  @Override
+  public String toString() {
+    return "ExtendedResponse[statusCode="
+        + statusCode
+        + ", htmlPresent="
+        + (html != null)
+        + ", textPresent="
+        + (text != null)
+        + ", headerCount="
+        + size(headers)
+        + ", xhrCount="
+        + size(xhrs)
+        + ", iframeCount="
+        + size(iframes)
+        + "]";
+  }
+
+  private static int size(List<?> values) {
+    return values == null ? 0 : values.size();
+  }
+
+  public record Header(String name, String value) {}
+
+  public record XhrResponse(
+      String url,
+      Integer status,
+      String method,
+      List<Header> headers,
+      @SerializedName("request_body") String requestBody,
+      String body) {}
+
+  public record IframeResponse(String src, String html) {}
+}

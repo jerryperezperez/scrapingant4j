@@ -1,6 +1,5 @@
 package com.gapplabs;
 
-import com.gapplabs.constants.ExtractionType;
 import feign.Param;
 import feign.QueryMap;
 import feign.RequestLine;
