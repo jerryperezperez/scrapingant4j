@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.gapplabs.scrapingant4j.ScrapingAntClient;
 import com.gapplabs.scrapingant4j.ScrapingAntClientOptions;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 
 class ScrapingAntAutoConfigurationTest {
 
@@ -71,6 +74,27 @@ class ScrapingAntAutoConfigurationTest {
           assertThat(context).hasSingleBean(ScrapingAntClient.class);
           assertThat(context).doesNotHaveBean(ScrapingAntClientOptions.class);
         });
+  }
+
+  @Test
+  void testConfigurationMetadataIsGeneratedForAllProperties() throws IOException {
+    ClassPathResource resource =
+        new ClassPathResource("META-INF/spring-configuration-metadata.json");
+
+    assertThat(resource.exists()).isTrue();
+    assertThat(resource.getContentAsString(StandardCharsets.UTF_8))
+        .containsIgnoringWhitespaces(
+            "\"name\":\"scrapingant\"",
+            "\"name\":\"scrapingant.api-key\"",
+            "\"name\":\"scrapingant.connect-timeout\"",
+            "\"name\":\"scrapingant.read-timeout\"",
+            "\"type\":\"java.lang.String\"",
+            "\"type\":\"java.time.Duration\"",
+            "\"description\":\"ScrapingAnt API key. Supply it through an environment variable or secret store.\"",
+            "\"description\":\"Maximum time to establish a connection.\"",
+            "\"description\":\"Maximum time to wait for response data.\"",
+            "\"defaultValue\":\"5s\"",
+            "\"defaultValue\":\"60s\"");
   }
 
   @SpringBootConfiguration
