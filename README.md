@@ -7,7 +7,7 @@ An unofficial Java SDK for the [ScrapingAnt API](https://scrapingant.com). The S
 
 ## Project status
 
-The project is not yet published to Maven Central. The current development version is `1.0.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
+The project is not yet published to Maven Central. The current development version is `0.1.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
 
 ## Modules and requirements
 
@@ -22,17 +22,17 @@ Java 17 or later and Maven 3.9 or later are required to build. Compatibility det
 
 Until the first stable Central release, build and install both modules from a checkout:
 
-```shell
+``` shell
 mvn -B -ntp clean install
 ```
 
 Add one of these dependencies using the version installed locally:
 
-```xml
+``` xml
 <dependency>
     <groupId>com.gapplabs</groupId>
     <artifactId>scrapingant4j-core</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -40,7 +40,7 @@ For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
 
 ## Quick start: plain Java
 
-```java
+``` java
 import com.gapplabs.scrapingant4j.ScrapingAntClient;
 import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 
@@ -61,13 +61,13 @@ Request options are sent only when set, preserving the API's defaults. URLs must
 
 Add the starter dependency, then configure the key through an environment variable:
 
-```properties
+``` properties
 scrapingant.api-key=${SCRAPINGANT_API_KEY}
 ```
 
 The starter creates a `ScrapingAntClient` bean when `scrapingant.api-key` is configured. A minimal runnable app can use a `CommandLineRunner`:
 
-```java
+``` java
 import com.gapplabs.scrapingant4j.ScrapingAntClient;
 import com.gapplabs.scrapingant4j.dto.ScrapingAntRequest;
 import org.springframework.boot.CommandLineRunner;
@@ -122,7 +122,7 @@ All SDK failures derive from `ScrapingAntException`:
 
 `Retry-After` accepts seconds or an RFC 1123 date. Invalid or missing values produce `null`. `executeGeneral` returns the response body as-is, including an empty body. Typed JSON operations reject empty bodies and JSON `null` with `ScrapingAntResponseException`.
 
-```java
+``` java
 try {
     client.executeGeneral(request);
 } catch (ScrapingAntHttpException e) {
@@ -138,7 +138,7 @@ The API key and request cookies/JavaScript are excluded from generated string re
 
 ## Build and test
 
-```shell
+``` shell
 mvn -B -ntp clean verify
 ```
 

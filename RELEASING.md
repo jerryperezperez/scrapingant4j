@@ -1,6 +1,6 @@
 # Release procedure
 
-The first stable release should be cut only after API and license review. The project currently remains `1.0.0-SNAPSHOT`; there are no published releases.
+The first stable release should be cut only after API and license review. The project currently remains `0.1.0-SNAPSHOT`; there are no published releases.
 
 ## Prepare a release
 

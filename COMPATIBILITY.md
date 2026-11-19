@@ -11,4 +11,4 @@ The core module targets Java 17 language/runtime features. The Spring Boot start
 
 ## API compatibility
 
-The project is currently at `1.0.0-SNAPSHOT`, so these APIs are still subject to change before the first stable release. After `1.0.0`, incompatible public API changes require a major version. Additive compatible features use a minor version, and compatible fixes use a patch version. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently at `0.1.0-SNAPSHOT`, so these APIs are still subject to change before the first stable release. After `1.0.0`, incompatible public API changes require a major version. Additive compatible features use a minor version, and compatible fixes use a patch version. See [CHANGELOG.md](CHANGELOG.md) for release notes.
