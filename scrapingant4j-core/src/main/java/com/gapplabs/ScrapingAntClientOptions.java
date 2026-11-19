@@ -1,125 +1,57 @@
 package com.gapplabs;
 
-import com.google.gson.Gson;
-import feign.Feign;
+import java.time.Duration;
+import lombok.Builder;
+import lombok.Getter;
 
-/**
- * Immutable configuration for {@link ScrapingAntClient}.
- */
+/** Immutable configuration for {@link ScrapingAntClient}. */
 public final class ScrapingAntClientOptions {
-
-    public static final String DEFAULT_ENDPOINT = "https://api.scrapingant.com";
-    public static final String DEFAULT_API_VERSION = "v2";
-
-    private final String apiKey;
-    private final String endpoint;
-    private final String apiVersion;
-    private final Gson gson;
-    private final Feign.Builder feignBuilder;
-
-    private ScrapingAntClientOptions(Builder builder) {
-        this.apiKey = requireText(builder.apiKey, "apiKey");
-        this.endpoint = normalizeEndpoint(builder.endpoint);
-        this.apiVersion = normalizeApiVersion(builder.apiVersion);
-        this.gson = builder.gson != null ? builder.gson : new Gson();
-        this.feignBuilder = builder.feignBuilder != null ? builder.feignBuilder : Feign.builder();
+  
+  public static final String DEFAULT_BASE_URL = "https://api.scrapingant.com/v2";
+  
+  private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(5);
+  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration MIN_TIMEOUT = Duration.ofMillis(1);
+  private static final Duration MAX_TIMEOUT = Duration.ofMillis(Integer.MAX_VALUE);
+  
+  private final String apiKey;
+  @Getter private final Duration connectTimeout;
+  @Getter private final Duration readTimeout;
+  
+  @Builder
+  private ScrapingAntClientOptions(String apiKey, Duration connectTimeout, Duration readTimeout) {
+    this.apiKey = requireApiKey(apiKey);
+    this.connectTimeout =
+            requireTimeout(
+                    connectTimeout == null ? DEFAULT_CONNECT_TIMEOUT : connectTimeout, "connectTimeout");
+    this.readTimeout =
+            requireTimeout(readTimeout == null ? DEFAULT_READ_TIMEOUT : readTimeout, "readTimeout");
+  }
+  
+  String apiKey() {
+    return apiKey;
+  }
+  
+  /** Lombok generates the setters and build(); this only hides the key from toString. */
+  public static class ScrapingAntClientOptionsBuilder {
+    @Override
+    public String toString() {
+      return "ScrapingAntClientOptionsBuilder[apiKey=<redacted>]";
     }
-
-    public static Builder builder() {
-        return new Builder();
+  }
+  
+  private static String requireApiKey(String apiKey) {
+    if (apiKey == null || apiKey.isBlank()) {
+      throw new IllegalArgumentException("apiKey is required and cannot be blank");
     }
-
-    public String getApiKey() {
-        return apiKey;
+    return apiKey.trim();
+  }
+  
+  private static Duration requireTimeout(Duration timeout, String name) {
+    if (timeout.compareTo(MIN_TIMEOUT) < 0 || timeout.compareTo(MAX_TIMEOUT) > 0) {
+      throw new IllegalArgumentException(
+              name + " must be between 1 ms and " + Integer.MAX_VALUE + " ms");
     }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public String getApiVersion() {
-        return apiVersion;
-    }
-
-    public Gson getGson() {
-        return gson;
-    }
-
-    public Feign.Builder getFeignBuilder() {
-        return feignBuilder;
-    }
-
-    public String getBaseUrl() {
-        return endpoint + "/" + apiVersion;
-    }
-
-    public static final class Builder {
-        private String apiKey;
-        private String endpoint = DEFAULT_ENDPOINT;
-        private String apiVersion = DEFAULT_API_VERSION;
-        private Gson gson;
-        private Feign.Builder feignBuilder;
-
-        private Builder() {
-        }
-
-        public Builder apiKey(String apiKey) {
-            this.apiKey = apiKey;
-            return this;
-        }
-
-        public Builder endpoint(String endpoint) {
-            this.endpoint = endpoint;
-            return this;
-        }
-
-        public Builder apiVersion(String apiVersion) {
-            this.apiVersion = apiVersion;
-            return this;
-        }
-
-        public Builder gson(Gson gson) {
-            this.gson = gson;
-            return this;
-        }
-
-        public Builder feignBuilder(Feign.Builder feignBuilder) {
-            this.feignBuilder = feignBuilder;
-            return this;
-        }
-
-        public ScrapingAntClientOptions build() {
-            return new ScrapingAntClientOptions(this);
-        }
-    }
-
-    private static String requireText(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("'" + fieldName + "' is required and cannot be blank");
-        }
-        return value.trim();
-    }
-
-    private static String normalizeEndpoint(String endpoint) {
-        String normalized = endpoint == null || endpoint.isBlank()
-                ? DEFAULT_ENDPOINT
-                : endpoint.trim();
-        while (normalized.endsWith("/")) {
-            normalized = normalized.substring(0, normalized.length() - 1);
-        }
-        return normalized;
-    }
-
-    private static String normalizeApiVersion(String apiVersion) {
-        String normalized = apiVersion == null || apiVersion.isBlank()
-                ? DEFAULT_API_VERSION
-                : apiVersion.trim();
-        while (normalized.startsWith("/")) {
-            normalized = normalized.substring(1);
-        }
-        if (normalized.isBlank()) {
-            throw new IllegalArgumentException("'apiVersion' cannot be blank");
-        }
-        return normalized;
-    }
+    return timeout;
+  }
 }

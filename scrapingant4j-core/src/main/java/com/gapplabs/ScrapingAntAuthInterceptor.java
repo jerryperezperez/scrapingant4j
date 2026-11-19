@@ -4,7 +4,7 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
 public class ScrapingAntAuthInterceptor implements RequestInterceptor {
-    public final String API_KEY_HEADER = "x-api-key";
+    public static final String API_KEY_HEADER = "x-api-key";
     private final String apiKey;
     
     public ScrapingAntAuthInterceptor(String apiKey) {
