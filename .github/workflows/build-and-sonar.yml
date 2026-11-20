@@ -35,7 +35,7 @@ jobs:
 
       - name: Cache SonarCloud
         if: matrix.java == 21 && env.SONAR_TOKEN != '' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
