@@ -7,7 +7,7 @@ An unofficial Java SDK for the [ScrapingAnt API](https://scrapingant.com). The S
 
 ## Project status
 
-The project is not yet published to Maven Central. The current development version is `0.1.0-SNAPSHOT`; install it locally with `mvn install`. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
+Version `0.1.0` is available on Maven Central. See [CHANGELOG.md](CHANGELOG.md) for changes and [COMPATIBILITY.md](COMPATIBILITY.md) for the supported runtime matrix. The SDK is not affiliated with ScrapingAnt.
 
 ## Modules and requirements
 
@@ -18,25 +18,29 @@ The project is not yet published to Maven Central. The current development versi
 
 Java 17 or later and Maven 3.9 or later are required to build. Compatibility details are in [COMPATIBILITY.md](COMPATIBILITY.md).
 
-## Install locally
+## Installation
 
-Until the first stable Central release, build and install both modules from a checkout:
-
-``` shell
-mvn -B -ntp clean install
-```
-
-Add one of these dependencies using the version installed locally:
+Add the core dependency to a plain Java project:
 
 ``` xml
 <dependency>
     <groupId>io.github.jerryperezperez</groupId>
     <artifactId>scrapingant4j-core</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
-For Spring Boot, use `scrapingant4j-spring-boot-starter` as the artifact ID.
+For Spring Boot, use the starter instead:
+
+``` xml
+<dependency>
+    <groupId>io.github.jerryperezperez</groupId>
+    <artifactId>scrapingant4j-spring-boot-starter</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+To build from source, run `mvn -B -ntp clean install` from a checkout.
 
 ## Quick start: plain Java
 

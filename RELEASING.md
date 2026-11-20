@@ -1,6 +1,6 @@
 # Release procedure
 
-The first stable release should be cut only after API review. The project currently remains `0.1.0-SNAPSHOT`; there are no published releases.
+The first stable release should be cut only after API review. Version `0.1.0` has been published to Maven Central; the current development version is `0.1.1-SNAPSHOT`.
 
 ## Prepare a release
 

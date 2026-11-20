@@ -11,6 +11,6 @@ The core module targets Java 17 language/runtime features. The Spring Boot start
 
 ## API compatibility
 
-The project is currently at `0.1.0-SNAPSHOT`, so these APIs are still subject to change before the first stable release. After `1.0.0`, incompatible public API changes require a major version. Additive compatible features use a minor version, and compatible fixes use a patch version. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is at `0.x`, so these APIs may still change before `1.0.0`. After `1.0.0`, incompatible public API changes require a major version. Additive compatible features use a minor version, and compatible fixes use a patch version. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 The ScrapingAnt API base URL is intentionally fixed in the SDK and is not exposed as configuration. If the upstream endpoint changes, support will be delivered through an SDK release.
