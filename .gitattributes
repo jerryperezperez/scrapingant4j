@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 # Keep git-generated source archives focused on source and documentation.
 .git* export-ignore
 .idea/ export-ignore
