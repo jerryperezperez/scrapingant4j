@@ -13,7 +13,9 @@ permissions:
 
 jobs:
   stage:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: central-release
     steps:
       - uses: actions/checkout@v4
       - name: Validate release version
@@ -34,7 +36,7 @@ jobs:
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          gpg-passphrase: GPG_PASSPHRASE
       - name: Build, sign, and stage release
         env:
           RELEASE_VERSION: ${{ inputs.version }}
